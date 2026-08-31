@@ -1,0 +1,732 @@
+* { box-sizing: border-box; }
+
+:root {
+    --app-max-width: 400px;
+}
+
+@media (min-width: 700px) {
+    :root {
+        --app-max-width: 480px;
+    }
+}
+
+body {
+    margin: 0;
+    background-color: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+#app {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #0d0d12;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.screen-inner {
+    width: 100%;
+    max-width: var(--app-max-width);
+    padding: 20px 20px 30px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen-inner.main-screen {
+    padding: 20px 20px 0 20px;
+}
+
+.tab-content {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 700px) {
+    .screen-inner {
+        padding: 40px 20px 50px 20px;
+    }
+    .screen-inner.main-screen {
+        padding: 40px 20px 0 20px;
+    }
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.top-bar-title {
+    margin: 0;
+    flex: 1;
+    font-size: 20px;
+}
+
+.back-btn {
+    background: #1c1c22;
+    border: none;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.step-counter {
+    font-size: 13px;
+    color: #9a9aa5;
+    background: #1c1c22;
+    padding: 6px 10px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+h2 {
+    font-size: 26px;
+    line-height: 1.3;
+    margin: 0 0 10px 0;
+}
+
+.accent {
+    background: linear-gradient(90deg, #a259ff, #d19bff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.subtitle {
+    color: #9a9aa5;
+    font-size: 14px;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+}
+
+.content { flex: 1; }
+
+/* Карточки выбора (лифт, частота тренировок и т.д.) */
+
+.option-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background-color: #1c1c22;
+    border: 1px solid #2a2a32;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.option-card.selected {
+    border-color: #a259ff;
+    background-color: #241a33;
+}
+
+.option-icon {
+    width: 44px;
+    height: 44px;
+    background-color: #2a2a32;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.option-text { flex: 1; }
+
+.option-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.option-desc {
+    font-size: 13px;
+    color: #9a9aa5;
+    margin-top: 3px;
+    line-height: 1.4;
+}
+
+.option-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #444;
+    flex-shrink: 0;
+}
+
+.option-card.selected .option-check {
+    border-color: #a259ff;
+    background-color: #a259ff;
+}
+
+/* Баннер апгрейда */
+
+.upsell-banner {
+    background: linear-gradient(135deg, #241a33, #1c1c22);
+    border: 1px solid #a259ff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.upsell-text {
+    font-size: 14px;
+    color: #d9d9e0;
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.upgrade-btn {
+    background: linear-gradient(90deg, #7b2ff7, #b366ff);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Пикер чисел (текущий максимум / цель) */
+
+.picker-wrapper {
+    position: relative;
+    height: 280px;
+    margin: 20px 0;
+}
+
+.picker-list {
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    padding: 112px 0;
+    scrollbar-width: none;
+}
+
+.picker-list::-webkit-scrollbar { display: none; }
+
+.picker-item {
+    height: 56px;
+    line-height: 56px;
+    text-align: center;
+    font-size: 20px;
+    color: #555;
+    scroll-snap-align: center;
+}
+
+.picker-item.active {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.picker-highlight {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 56px;
+    transform: translateY(-50%);
+    border-top: 1px solid #a259ff;
+    border-bottom: 1px solid #a259ff;
+    pointer-events: none;
+}
+
+.next-btn {
+    background: linear-gradient(90deg, #7b2ff7, #b366ff);
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.next-btn:disabled {
+    background: #2a2a32;
+    color: #7a7a85;
+    cursor: not-allowed;
+}
+
+.hint-text {
+    text-align: center;
+    color: #7a7a85;
+    font-size: 12px;
+    margin: 10px 0 0 0;
+}
+
+.secondary-btn {
+    background: transparent;
+    color: #ff6b6b;
+    border: 1px solid #3a2222;
+    border-radius: 16px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* Быстрая навигация по номерам тренировок на экране тренировки */
+
+.workout-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 20px;
+}
+
+.workout-tab {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #2a2a32;
+    background-color: #1c1c22;
+    color: #7a7a85;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.workout-tab.done {
+    border-color: #3fbf67;
+    color: #6fe08c;
+}
+
+.workout-tab.current {
+    border-color: #a259ff;
+    color: #d19bff;
+}
+
+.workout-tab.active {
+    background: linear-gradient(90deg, #7b2ff7, #b366ff);
+    border-color: transparent;
+    color: #fff;
+}
+
+.workout-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.workout-header-row h2 {
+    margin: 0;
+}
+
+.max-badge {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #3a2416, #241a1a);
+    border: 1px solid #ff9f45;
+    color: #ffb877;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+/* Список подходов с чекбоксами */
+
+.sets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.set-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #1c1c22;
+    border: 1px solid #2a2a32;
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.set-row.readonly {
+    cursor: default;
+    opacity: 0.85;
+}
+
+.set-row.checked {
+    border-color: #3fbf67;
+    background-color: #16241c;
+}
+
+.set-index {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #2a2a32;
+    color: #d9d9e0;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.set-info { flex: 1; }
+
+.set-weight {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.set-type-badge {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #9a9aa5;
+    background-color: #2a2a32;
+    padding: 6px 10px;
+    border-radius: 10px;
+}
+
+.set-type-badge.negative {
+    color: #ffb877;
+    background-color: #3a2416;
+}
+
+.set-checkbox {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #444;
+    flex-shrink: 0;
+}
+
+.set-checkbox.checked {
+    border-color: #3fbf67;
+    background-color: #3fbf67;
+}
+
+/* Карточка упражнения / веса на экране тренировки */
+
+.workout-weight-card {
+    background: linear-gradient(135deg, #241a33, #1c1c22);
+    border: 1px solid #a259ff;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.workout-weight-value {
+    font-size: 40px;
+    font-weight: 800;
+}
+
+.workout-weight-label {
+    color: #9a9aa5;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.completed-badge {
+    text-align: center;
+    color: #9a9aa5;
+    padding: 16px;
+    font-size: 14px;
+}
+
+/* Переключатель лифтов (если открыто несколько) */
+
+.lift-switcher {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.lift-pill {
+    background-color: #1c1c22;
+    border: 1px solid #2a2a32;
+    color: #9a9aa5;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13px;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.lift-pill.active {
+    background-color: #241a33;
+    border-color: #a259ff;
+    color: #fff;
+}
+
+/* Путь-гора с тренировками */
+
+.path-container {
+    position: relative;
+    margin: 10px 0 40px 0;
+}
+
+.path-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.path-node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.path-node-inner {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    border: 3px solid #2a2a32;
+    background-color: #1c1c22;
+    color: #7a7a85;
+}
+
+.path-node.current .path-node-inner {
+    background: linear-gradient(135deg, #7b2ff7, #b366ff);
+    border-color: #d19bff;
+    color: #fff;
+    box-shadow: 0 0 0 6px rgba(162, 89, 255, 0.2);
+    animation: pulse 1.6s infinite;
+}
+
+.path-node.completed .path-node-inner {
+    background-color: #1f3a2a;
+    border-color: #3fbf67;
+    color: #6fe08c;
+}
+
+.path-node.locked .path-node-inner {
+    opacity: 0.6;
+}
+
+.path-node-weight {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #9a9aa5;
+    white-space: nowrap;
+}
+
+.week-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #d9d9e0;
+    font-size: 14px;
+    font-weight: 700;
+    transform: translateY(-6px);
+    z-index: 1;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(162, 89, 255, 0.4); }
+    70% { box-shadow: 0 0 0 12px rgba(162, 89, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(162, 89, 255, 0); }
+}
+
+/* Нижняя навигация */
+
+.bottom-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--app-max-width);
+    display: flex;
+    background-color: #14141a;
+    border-top: 1px solid #2a2a32;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px;
+}
+
+.nav-item {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #7a7a85;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 0;
+    cursor: pointer;
+}
+
+.nav-icon { font-size: 20px; }
+.nav-label { font-size: 11px; }
+
+.nav-item.active {
+    color: #d19bff;
+}
+
+/* Вкладка "Премиум" */
+
+.plan-card {
+    border: 1px solid #2a2a32;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    background-color: #1c1c22;
+}
+
+.plan-card.premium {
+    border-color: #a259ff;
+    background: linear-gradient(135deg, #241a33, #1c1c22);
+}
+
+.plan-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.plan-list {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
+    color: #d9d9e0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* Вкладка "Профиль" */
+
+.text-input {
+    width: 100%;
+    background-color: #1c1c22;
+    border: 1px solid #2a2a32;
+    border-radius: 12px;
+    padding: 14px;
+    color: #fff;
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+.dev-toggle-card {
+    border: 1px dashed #444;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 12px;
+}
+
+.dev-toggle-label {
+    font-size: 14px;
+    color: #d9d9e0;
+}
+
+.dev-toggle-note {
+    color: #7a7a85;
+    font-size: 12px;
+    margin: 10px 0 0 0;
+}
+
+/* ---------- V2: этапы и фазы программы ---------- */
+
+.workout-meta {
+    background: #16161c;
+    border: 1px solid #2a2a32;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+}
+
+.workout-meta-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.phase-chip,
+.stage-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 10px;
+    padding: 5px 9px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.phase-chip {
+    background: #2a2035;
+    color: #d19bff;
+}
+
+.stage-chip {
+    background: #24242c;
+    color: #9a9aa5;
+}
+
+.phase-note {
+    color: #9a9aa5;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.set-type-badge.top {
+    color: #ffcf8a;
+    background-color: #3a2a18;
+}
+
+.set-type-badge.backoff {
+    color: #c9b5e8;
+    background-color: #292234;
+}
+
+.set-type-badge.deload {
+    color: #8fc6a0;
+    background-color: #1d2b22;
+}
+
+.path-node-phase {
+    margin-top: 2px;
+    font-size: 9px;
+    color: #777783;
+    white-space: nowrap;
+}
+
+.path-node.current .path-node-phase {
+    color: #d19bff;
+}
+
+.path-node.completed .path-node-phase {
+    color: #6fe08c;
+}
