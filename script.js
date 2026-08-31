@@ -1,102 +1,266 @@
 // ---------- КОНСТАНТЫ ----------
 
 const LIFTS = {
-    bench: { key: "bench", label: "Жим лёжа", icon: "🏋️", increment: 2.5 },
-    squat: { key: "squat", label: "Присед", icon: "🦵", increment: 5 },
-    deadlift: { key: "deadlift", label: "Становая тяга", icon: "🏆", increment: 5 }
+    bench: {
+        key: "bench",
+        label: "Жим лёжа",
+        icon: "🏋️",
+        increment: 2.5
+    },
+
+    squat: {
+        key: "squat",
+        label: "Присед",
+        icon: "🦵",
+        increment: 5
+    },
+
+    deadlift: {
+        key: "deadlift",
+        label: "Становая тяга",
+        icon: "🏆",
+        increment: 5
+    }
 };
 
-const WEIGHT_STEP = 2.5; // Реальный шаг штанги: +1.25 кг с каждой стороны = +2.5 кг
-const BLOCK_SESSIONS = 6; // 5 рабочих тренировок + 1 разгрузочная
+const WEIGHT_STEP = 2.5;
+const BLOCK_SESSIONS = 6;
 const STORAGE_KEY = "liftPathAppStateV2";
 
 // Один прогресс-блок.
 // 1 раз/неделю -> блок проходит примерно за 6 недель.
 // 2 раза/неделю -> тот же блок проходит примерно за 3 недели.
+//
 // Это не обещание, что сила физиологически растёт в 2 раза быстрее:
-// просто пользователь получает больше практики и быстрее проходит этапы при успешном выполнении.
+// просто пользователь получает больше практики и быстрее проходит этапы
+// при успешном выполнении.
+
 const BLOCK_TEMPLATE = [
     {
         key: "volume",
         label: "Объём",
+
         sets: [
-            { percent: 0.70, reps: 6, type: "normal", label: "рабочий" },
-            { percent: 0.70, reps: 6, type: "normal", label: "рабочий" },
-            { percent: 0.70, reps: 6, type: "normal", label: "рабочий" },
-            { percent: 0.70, reps: 6, type: "normal", label: "рабочий" }
+            {
+                percent: 0.70,
+                reps: 6,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.70,
+                reps: 6,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.70,
+                reps: 6,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.70,
+                reps: 6,
+                type: "normal",
+                label: "рабочий"
+            }
         ],
+
         note: "Контроль техники · оставь примерно 2–3 повтора в запасе"
     },
+
     {
         key: "base",
         label: "База",
+
         sets: [
-            { percent: 0.75, reps: 5, type: "normal", label: "рабочий" },
-            { percent: 0.75, reps: 5, type: "normal", label: "рабочий" },
-            { percent: 0.75, reps: 5, type: "normal", label: "рабочий" },
-            { percent: 0.75, reps: 5, type: "normal", label: "рабочий" }
+            {
+                percent: 0.75,
+                reps: 5,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.75,
+                reps: 5,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.75,
+                reps: 5,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.75,
+                reps: 5,
+                type: "normal",
+                label: "рабочий"
+            }
         ],
+
         note: "Умеренно тяжёлая работа · примерно 2 повтора в запасе"
     },
+
     {
         key: "strength",
         label: "Сила",
+
         sets: [
-            { percent: 0.80, reps: 4, type: "normal", label: "рабочий" },
-            { percent: 0.80, reps: 4, type: "normal", label: "рабочий" },
-            { percent: 0.80, reps: 4, type: "normal", label: "рабочий" },
-            { percent: 0.80, reps: 4, type: "normal", label: "рабочий" }
+            {
+                percent: 0.80,
+                reps: 4,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.80,
+                reps: 4,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.80,
+                reps: 4,
+                type: "normal",
+                label: "рабочий"
+            },
+            {
+                percent: 0.80,
+                reps: 4,
+                type: "normal",
+                label: "рабочий"
+            }
         ],
+
         note: "Сильные, но чистые повторы · без отказа"
     },
+
     {
         key: "intensity",
         label: "Интенсивность",
+
         sets: [
-            { percent: 0.85, reps: 3, type: "normal", label: "тяжёлый" },
-            { percent: 0.85, reps: 3, type: "normal", label: "тяжёлый" },
-            { percent: 0.85, reps: 3, type: "normal", label: "тяжёлый" },
-            { percent: 0.85, reps: 3, type: "normal", label: "тяжёлый" }
+            {
+                percent: 0.85,
+                reps: 3,
+                type: "normal",
+                label: "тяжёлый"
+            },
+            {
+                percent: 0.85,
+                reps: 3,
+                type: "normal",
+                label: "тяжёлый"
+            },
+            {
+                percent: 0.85,
+                reps: 3,
+                type: "normal",
+                label: "тяжёлый"
+            },
+            {
+                percent: 0.85,
+                reps: 3,
+                type: "normal",
+                label: "тяжёлый"
+            }
         ],
+
         note: "Тяжёлый день · ориентир RPE 8, без отказа"
     },
+
     {
         key: "peak",
         label: "Пик",
+
         sets: [
-            { percent: 0.90, reps: 1, type: "top", label: "тяжёлый одиночный" },
-            { percent: 0.825, reps: 2, type: "backoff", label: "откат" },
-            { percent: 0.825, reps: 2, type: "backoff", label: "откат" },
-            { percent: 0.825, reps: 2, type: "backoff", label: "откат" }
+            {
+                percent: 0.90,
+                reps: 1,
+                type: "top",
+                label: "тяжёлый одиночный"
+            },
+            {
+                percent: 0.825,
+                reps: 2,
+                type: "backoff",
+                label: "откат"
+            },
+            {
+                percent: 0.825,
+                reps: 2,
+                type: "backoff",
+                label: "откат"
+            },
+            {
+                percent: 0.825,
+                reps: 2,
+                type: "backoff",
+                label: "откат"
+            }
         ],
+
         note: "Одиночный повтор только технически чистый · не максимальная попытка"
     },
+
     {
         key: "deload",
         label: "Разгрузка",
+
         sets: [
-            { percent: 0.65, reps: 5, type: "deload", label: "лёгкий" },
-            { percent: 0.65, reps: 5, type: "deload", label: "лёгкий" },
-            { percent: 0.65, reps: 5, type: "deload", label: "лёгкий" }
+            {
+                percent: 0.65,
+                reps: 5,
+                type: "deload",
+                label: "лёгкий"
+            },
+            {
+                percent: 0.65,
+                reps: 5,
+                type: "deload",
+                label: "лёгкий"
+            },
+            {
+                percent: 0.65,
+                reps: 5,
+                type: "deload",
+                label: "лёгкий"
+            }
         ],
+
         note: "Снизь усталость и сохрани технику"
     }
 ];
 
+
 // ---------- СОСТОЯНИЕ ----------
 
 let unlockedLiftCount = 1;
-let appState = "onboarding-lift-select";
+
+let appState =
+    "onboarding-lift-select";
+
 let selectedLifts = [];
+
 let onboardingLiftFlow = [];
+
 let onboardingStepIndex = 0;
+
 let tempAnswers = {};
 
 let userProgress = {};
+
 let activeLift = null;
+
 let activeTab = "path";
+
 let viewingNodeIndex = null;
+
 let showUpsellBanner = false;
+
 
 // ---------- ХРАНЕНИЕ ПРОГРЕССА ----------
 
@@ -109,24 +273,39 @@ function saveState() {
     };
 
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(data)
+        );
     } catch (e) {
-        console.error("Не удалось сохранить прогресс:", e);
+        console.error(
+            "Не удалось сохранить прогресс:",
+            e
+        );
     }
 }
 
+
 function loadState() {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw =
+        localStorage.getItem(
+            STORAGE_KEY
+        );
 
     if (!raw) {
         return false;
     }
 
     try {
-        const data = JSON.parse(raw);
+        const data =
+            JSON.parse(raw);
 
-        const loadedSelectedLifts = data.selectedLifts || [];
-        const loadedUserProgress = data.userProgress || {};
+        const loadedSelectedLifts =
+            data.selectedLifts || [];
+
+        const loadedUserProgress =
+            data.userProgress || {};
+
         const loadedActiveLift =
             data.activeLift ||
             loadedSelectedLifts[0] ||
@@ -141,70 +320,113 @@ function loadState() {
 
         // Старый формат/старые тренировки не используем.
         // V2 должен работать только с новым форматом тренировок.
-        const isCompatible = loadedSelectedLifts.every(lift => {
-            const p = loadedUserProgress[lift];
 
-            return (
-                p &&
-                Array.isArray(p.workouts) &&
-                p.workouts.length > 0 &&
-                p.workouts[0].phase &&
-                p.workouts[0].sets &&
-                p.workouts[0].sets[0] &&
-                p.workouts[0].sets[0].weight !== undefined
+        const isCompatible =
+            loadedSelectedLifts.every(
+                lift => {
+                    const p =
+                        loadedUserProgress[lift];
+
+                    return (
+                        p &&
+                        Array.isArray(
+                            p.workouts
+                        ) &&
+                        p.workouts.length > 0 &&
+                        p.workouts[0].phase &&
+                        p.workouts[0].sets &&
+                        p.workouts[0].sets[0] &&
+                        p.workouts[0].sets[0]
+                            .weight !== undefined
+                    );
+                }
             );
-        });
 
         if (!isCompatible) {
-            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(
+                STORAGE_KEY
+            );
+
             return false;
         }
 
-        selectedLifts = loadedSelectedLifts;
-        unlockedLiftCount = data.unlockedLiftCount || 1;
-        userProgress = loadedUserProgress;
-        activeLift = loadedActiveLift;
+        selectedLifts =
+            loadedSelectedLifts;
+
+        unlockedLiftCount =
+            data.unlockedLiftCount || 1;
+
+        userProgress =
+            loadedUserProgress;
+
+        activeLift =
+            loadedActiveLift;
 
         return true;
+
     } catch (e) {
         return false;
     }
 }
 
+
 function resetProgress() {
-    if (!confirm("Сбросить весь прогресс и пройти заново?")) {
+    if (
+        !confirm(
+            "Сбросить весь прогресс и пройти заново?"
+        )
+    ) {
         return;
     }
 
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(
+        STORAGE_KEY
+    );
 
     selectedLifts = [];
+
     userProgress = {};
+
     activeLift = null;
+
     tempAnswers = {};
+
     onboardingLiftFlow = [];
+
     onboardingStepIndex = 0;
+
     viewingNodeIndex = null;
 
-    appState = "onboarding-lift-select";
+    appState =
+        "onboarding-lift-select";
 
     renderLiftSelect();
 }
 
+
 // ---------- ГЕНЕРАЦИЯ ПУТИ ТРЕНИРОВОК ----------
 
-function roundToStep(value, step = WEIGHT_STEP) {
+function roundToStep(
+    value,
+    step = WEIGHT_STEP
+) {
     return Math.max(
         WEIGHT_STEP,
-        Math.round(value / step) * step
+        Math.round(
+            value / step
+        ) * step
     );
 }
+
 
 function formatKg(value) {
     return Number.isInteger(value)
         ? String(value)
-        : value.toFixed(1).replace(".", ",");
+        : value
+            .toFixed(1)
+            .replace(".", ",");
 }
+
 
 function buildWorkout(
     estMax,
@@ -214,27 +436,53 @@ function buildWorkout(
     weekNumber,
     sessionInWeek
 ) {
-    const sets = phase.sets.map(t => ({
-        weight: roundToStep(estMax * t.percent),
-        reps: t.reps,
-        type: t.type,
-        label: t.label
-    }));
+    const sets =
+        phase.sets.map(
+            t => ({
+                weight:
+                    roundToStep(
+                        estMax *
+                        t.percent
+                    ),
+
+                reps: t.reps,
+
+                type: t.type,
+
+                label: t.label
+            })
+        );
 
     return {
         estMax,
+
         phase: phase.key,
-        phaseLabel: phase.label,
-        phaseNote: phase.note,
+
+        phaseLabel:
+            phase.label,
+
+        phaseNote:
+            phase.note,
+
         blockIndex,
+
         sessionInBlock,
+
         weekNumber,
+
         sessionInWeek,
+
         sets,
-        checked: sets.map(() => false),
+
+        checked:
+            sets.map(
+                () => false
+            ),
+
         completed: false
     };
 }
+
 
 // Строим путь блоками.
 //
@@ -256,17 +504,23 @@ function generateWorkouts(
     frequency,
     liftKey
 ) {
-    const increment = LIFTS[liftKey].increment;
+    const increment =
+        LIFTS[liftKey].increment;
 
-    const distance = Math.max(
-        0,
-        goal - current
-    );
+    const distance =
+        Math.max(
+            0,
+            goal - current
+        );
 
-    const blocks = Math.max(
-        1,
-        Math.ceil(distance / increment) + 1
-    );
+    const blocks =
+        Math.max(
+            1,
+            Math.ceil(
+                distance /
+                increment
+            ) + 1
+        );
 
     const workouts = [];
 
@@ -275,20 +529,26 @@ function generateWorkouts(
         blockIndex < blocks;
         blockIndex++
     ) {
-        const estMax = Math.min(
-            goal,
-            roundToStep(
-                current + blockIndex * increment
-            )
-        );
+        const estMax =
+            Math.min(
+                goal,
+                roundToStep(
+                    current +
+                    blockIndex *
+                    increment
+                )
+            );
 
         for (
             let sessionInBlock = 0;
-            sessionInBlock < BLOCK_SESSIONS;
+            sessionInBlock <
+            BLOCK_SESSIONS;
             sessionInBlock++
         ) {
             const phase =
-                BLOCK_TEMPLATE[sessionInBlock];
+                BLOCK_TEMPLATE[
+                    sessionInBlock
+                ];
 
             // При 2 тренировках в неделю
             // два соседних занятия образуют одну неделю.
@@ -297,16 +557,21 @@ function generateWorkouts(
             // каждое занятие — отдельная неделя.
 
             const absoluteSession =
-                blockIndex * BLOCK_SESSIONS +
+                blockIndex *
+                    BLOCK_SESSIONS +
                 sessionInBlock;
 
             const weekNumber =
                 Math.floor(
-                    absoluteSession / frequency
+                    absoluteSession /
+                    frequency
                 ) + 1;
 
             const sessionInWeek =
-                (absoluteSession % frequency) + 1;
+                (
+                    absoluteSession %
+                    frequency
+                ) + 1;
 
             workouts.push(
                 buildWorkout(
@@ -324,42 +589,56 @@ function generateWorkouts(
     return workouts;
 }
 
+
 // ---------- ОНБОРДИНГ: ВЫБОР ЛИФТА ----------
 
 function renderLiftSelect() {
-    const app = document.getElementById("app");
+    const app =
+        document.getElementById(
+            "app"
+        );
 
     let optionsHtml = "";
 
-    Object.values(LIFTS).forEach(lift => {
-        const isSelected =
-            selectedLifts.includes(lift.key);
+    Object.values(LIFTS)
+        .forEach(
+            lift => {
+                const isSelected =
+                    selectedLifts.includes(
+                        lift.key
+                    );
 
-        optionsHtml += `
-            <div
-                class="option-card ${isSelected ? "selected" : ""}"
-                onclick="toggleLiftSelect('${lift.key}')"
-            >
-                <div class="option-icon">
-                    ${lift.icon}
-                </div>
+                optionsHtml += `
+                    <div
+                        class="option-card ${
+                            isSelected
+                                ? "selected"
+                                : ""
+                        }"
+                        onclick="toggleLiftSelect('${lift.key}')"
+                    >
+                        <div class="option-icon">
+                            ${lift.icon}
+                        </div>
 
-                <div class="option-text">
-                    <div class="option-title">
-                        ${lift.label}
+                        <div class="option-text">
+                            <div class="option-title">
+                                ${lift.label}
+                            </div>
+                        </div>
+
+                        <div class="option-check"></div>
                     </div>
-                </div>
-
-                <div class="option-check"></div>
-            </div>
-        `;
-    });
+                `;
+            }
+        );
 
     let upsellHtml = "";
 
     if (showUpsellBanner) {
         upsellHtml = `
             <div class="upsell-banner">
+
                 <div class="upsell-text">
                     В бесплатной версии доступен
                     <b>1 лифт</b>.<br>
@@ -372,6 +651,7 @@ function renderLiftSelect() {
                 >
                     Посмотреть тарифы
                 </button>
+
             </div>
         `;
     }
@@ -407,15 +687,24 @@ function renderLiftSelect() {
     `;
 }
 
+
 function toggleLiftSelect(key) {
     const idx =
-        selectedLifts.indexOf(key);
+        selectedLifts.indexOf(
+            key
+        );
 
     if (idx > -1) {
-        selectedLifts.splice(idx, 1);
-        showUpsellBanner = false;
+        selectedLifts.splice(
+            idx,
+            1
+        );
+
+        showUpsellBanner =
+            false;
 
         renderLiftSelect();
+
         return;
     }
 
@@ -423,17 +712,24 @@ function toggleLiftSelect(key) {
         selectedLifts.length >=
         unlockedLiftCount
     ) {
-        showUpsellBanner = true;
+        showUpsellBanner =
+            true;
 
         renderLiftSelect();
+
         return;
     }
 
-    selectedLifts.push(key);
-    showUpsellBanner = false;
+    selectedLifts.push(
+        key
+    );
+
+    showUpsellBanner =
+        false;
 
     renderLiftSelect();
 }
+
 
 function showPricingInfoAlert() {
     alert(
@@ -444,38 +740,49 @@ function showPricingInfoAlert() {
     );
 }
 
+
 function proceedToNumbers() {
-    if (selectedLifts.length === 0) {
-        alert("Выбери хотя бы один лифт");
+    if (
+        selectedLifts.length === 0
+    ) {
+        alert(
+            "Выбери хотя бы один лифт"
+        );
+
         return;
     }
 
     onboardingLiftFlow = [];
 
-    selectedLifts.forEach(lift => {
-        onboardingLiftFlow.push({
-            lift,
-            type: "current"
-        });
+    selectedLifts.forEach(
+        lift => {
+            onboardingLiftFlow.push({
+                lift,
+                type: "current"
+            });
 
-        onboardingLiftFlow.push({
-            lift,
-            type: "goal"
-        });
+            onboardingLiftFlow.push({
+                lift,
+                type: "goal"
+            });
 
-        onboardingLiftFlow.push({
-            lift,
-            type: "frequency"
-        });
-    });
+            onboardingLiftFlow.push({
+                lift,
+                type: "frequency"
+            });
+        }
+    );
 
     onboardingStepIndex = 0;
+
     tempAnswers = {};
 
-    appState = "onboarding-numbers";
+    appState =
+        "onboarding-numbers";
 
     renderOnboardingStep();
 }
+
 
 // ---------- ОНБОРДИНГ: ДИСПЕТЧЕР ШАГОВ ----------
 
@@ -485,18 +792,25 @@ function renderOnboardingStep() {
             onboardingStepIndex
         ];
 
-    if (step.type === "frequency") {
+    if (
+        step.type ===
+        "frequency"
+    ) {
         renderFrequencyStep();
     } else {
         renderNumberStep();
     }
 }
 
+
 function prevOnboardingStep() {
-    if (onboardingStepIndex > 0) {
+    if (
+        onboardingStepIndex > 0
+    ) {
         onboardingStepIndex--;
 
         renderOnboardingStep();
+
     } else {
         appState =
             "onboarding-lift-select";
@@ -505,13 +819,17 @@ function prevOnboardingStep() {
     }
 }
 
+
 function nextOnboardingStep() {
     const step =
         onboardingLiftFlow[
             onboardingStepIndex
         ];
 
-    if (step.type === "frequency") {
+    if (
+        step.type ===
+        "frequency"
+    ) {
         if (
             !tempAnswers[
                 `${step.lift}_frequency`
@@ -523,25 +841,34 @@ function nextOnboardingStep() {
 
             return;
         }
+
     } else {
         const key =
             `${step.lift}_${step.type}`;
 
         if (
-            tempAnswers[key] === undefined
+            tempAnswers[key] ===
+            undefined
         ) {
-            alert("Выбери значение");
+            alert(
+                "Выбери значение"
+            );
+
             return;
         }
 
-        if (step.type === "goal") {
+        if (
+            step.type ===
+            "goal"
+        ) {
             const current =
                 tempAnswers[
                     `${step.lift}_current`
                 ];
 
             if (
-                tempAnswers[key] <= current
+                tempAnswers[key] <=
+                current
             ) {
                 alert(
                     "Цель должна быть больше " +
@@ -565,6 +892,7 @@ function nextOnboardingStep() {
     }
 }
 
+
 // ---------- ОНБОРДИНГ: ТЕКУЩИЙ МАКСИМУМ И ЦЕЛЬ ----------
 
 function renderNumberStep() {
@@ -580,6 +908,7 @@ function renderNumberStep() {
         step.type === "goal";
 
     const min = 20;
+
     const max = 300;
 
     const key =
@@ -602,21 +931,22 @@ function renderNumberStep() {
                 : 60
         );
 
-    const title = isGoal
-        ? `
-            Какой результат хочешь показать
-            в
-            <span class="accent">
-                ${liftInfo.label}
-            </span>?
-        `
-        : `
-            Твой текущий максимум
-            на 1 повтор в
-            <span class="accent">
-                ${liftInfo.label}
-            </span>?
-        `;
+    const title =
+        isGoal
+            ? `
+                Какой результат хочешь показать
+                в
+                <span class="accent">
+                    ${liftInfo.label}
+                </span>?
+            `
+            : `
+                Твой текущий максимум
+                на 1 повтор в
+                <span class="accent">
+                    ${liftInfo.label}
+                </span>?
+            `;
 
     let itemsHtml = "";
 
@@ -636,7 +966,9 @@ function renderNumberStep() {
     }
 
     const app =
-        document.getElementById("app");
+        document.getElementById(
+            "app"
+        );
 
     app.innerHTML = `
         <div class="screen-inner">
@@ -704,6 +1036,7 @@ function renderNumberStep() {
     );
 }
 
+
 function setupNumberPicker(
     key,
     min,
@@ -718,12 +1051,16 @@ function setupNumberPicker(
 
     const index =
         Math.round(
-            (defaultValue - min) /
+            (
+                defaultValue -
+                min
+            ) /
             WEIGHT_STEP
         );
 
     list.scrollTop =
-        index * itemHeight;
+        index *
+        itemHeight;
 
     updateNumberPickerSelection(
         key,
@@ -740,17 +1077,21 @@ function setupNumberPicker(
             );
 
             window.numberPickerScrollTimeout =
-                setTimeout(() => {
-                    updateNumberPickerSelection(
-                        key,
-                        min,
-                        list,
-                        itemHeight
-                    );
-                }, 100);
+                setTimeout(
+                    () => {
+                        updateNumberPickerSelection(
+                            key,
+                            min,
+                            list,
+                            itemHeight
+                        );
+                    },
+                    100
+                );
         }
     );
 }
+
 
 function updateNumberPickerSelection(
     key,
@@ -766,20 +1107,24 @@ function updateNumberPickerSelection(
 
     const value =
         min +
-        index * WEIGHT_STEP;
+        index *
+        WEIGHT_STEP;
 
-    tempAnswers[key] = value;
+    tempAnswers[key] =
+        value;
 
     const items =
         document.querySelectorAll(
             ".picker-item"
         );
 
-    items.forEach(item => {
-        item.classList.remove(
-            "active"
-        );
-    });
+    items.forEach(
+        item => {
+            item.classList.remove(
+                "active"
+            );
+        }
+    );
 
     if (items[index]) {
         items[index].classList.add(
@@ -787,6 +1132,7 @@ function updateNumberPickerSelection(
         );
     }
 }
+
 
 // ---------- ОНБОРДИНГ: ЧАСТОТА ТРЕНИРОВОК ----------
 
@@ -814,6 +1160,7 @@ function renderFrequencyStep() {
                 "Больше восстановления, " +
                 "но путь по этапам будет длиннее"
         },
+
         {
             value: 2,
             icon: "🔁",
@@ -827,40 +1174,44 @@ function renderFrequencyStep() {
 
     const optionsHtml =
         options
-            .map(o => `
-                <div
-                    class="option-card ${
-                        selected === o.value
-                            ? "selected"
-                            : ""
-                    }"
-                    onclick="selectFrequency(${o.value})"
-                >
+            .map(
+                o => `
+                    <div
+                        class="option-card ${
+                            selected === o.value
+                                ? "selected"
+                                : ""
+                        }"
+                        onclick="selectFrequency(${o.value})"
+                    >
 
-                    <div class="option-icon">
-                        ${o.icon}
-                    </div>
-
-                    <div class="option-text">
-
-                        <div class="option-title">
-                            ${o.title}
+                        <div class="option-icon">
+                            ${o.icon}
                         </div>
 
-                        <div class="option-desc">
-                            ${o.desc}
+                        <div class="option-text">
+
+                            <div class="option-title">
+                                ${o.title}
+                            </div>
+
+                            <div class="option-desc">
+                                ${o.desc}
+                            </div>
+
                         </div>
 
+                        <div class="option-check"></div>
+
                     </div>
-
-                    <div class="option-check"></div>
-
-                </div>
-            `)
+                `
+            )
             .join("");
 
     const app =
-        document.getElementById("app");
+        document.getElementById(
+            "app"
+        );
 
     app.innerHTML = `
         <div class="screen-inner">
@@ -909,7 +1260,10 @@ function renderFrequencyStep() {
     `;
 }
 
-function selectFrequency(value) {
+
+function selectFrequency(
+    value
+) {
     const step =
         onboardingLiftFlow[
             onboardingStepIndex
@@ -922,66 +1276,81 @@ function selectFrequency(value) {
     renderFrequencyStep();
 }
 
+
 function finalizeOnboarding() {
-    selectedLifts.forEach(lift => {
-        const current =
-            tempAnswers[
-                `${lift}_current`
-            ];
+    selectedLifts.forEach(
+        lift => {
+            const current =
+                tempAnswers[
+                    `${lift}_current`
+                ];
 
-        const goal =
-            tempAnswers[
-                `${lift}_goal`
-            ];
+            const goal =
+                tempAnswers[
+                    `${lift}_goal`
+                ];
 
-        const frequency =
-            tempAnswers[
-                `${lift}_frequency`
-            ] || 1;
+            const frequency =
+                tempAnswers[
+                    `${lift}_frequency`
+                ] || 1;
 
-        const workouts =
-            generateWorkouts(
+            const workouts =
+                generateWorkouts(
+                    current,
+                    goal,
+                    frequency,
+                    lift
+                );
+
+            userProgress[lift] = {
                 current,
                 goal,
                 frequency,
-                lift
-            );
-
-        userProgress[lift] = {
-            current,
-            goal,
-            frequency,
-            workouts,
-            completedCount: 0
-        };
-    });
+                workouts,
+                completedCount: 0
+            };
+        }
+    );
 
     activeLift =
         selectedLifts[0];
 
-    appState = "main";
-    activeTab = "path";
+    appState =
+        "main";
+
+    activeTab =
+        "path";
 
     saveState();
+
     renderApp();
 }
+
 
 // ---------- ОСНОВНОЕ ПРИЛОЖЕНИЕ ----------
 
 function renderApp() {
     const app =
-        document.getElementById("app");
+        document.getElementById(
+            "app"
+        );
 
-    let tabContentHtml = "";
+    let tabContentHtml =
+        "";
 
-    if (activeTab === "path") {
+    if (
+        activeTab === "path"
+    ) {
         tabContentHtml =
             getPathTabHtml();
+
     } else if (
         activeTab === "premium"
     ) {
         tabContentHtml =
             getPremiumTabHtml();
+
     } else if (
         activeTab === "profile"
     ) {
@@ -1055,17 +1424,26 @@ function renderApp() {
     `;
 }
 
-function switchTab(tab) {
+
+function switchTab(
+    tab
+) {
     activeTab = tab;
-    viewingNodeIndex = null;
+
+    viewingNodeIndex =
+        null;
 
     renderApp();
 }
 
+
 // ---------- ВКЛАДКА "ПУТЬ" ----------
 
 function getPathTabHtml() {
-    if (viewingNodeIndex !== null) {
+    if (
+        viewingNodeIndex !==
+        null
+    ) {
         return getNodeDetailHtml();
     }
 
@@ -1075,32 +1453,39 @@ function getPathTabHtml() {
     const liftInfo =
         LIFTS[activeLift];
 
-    let switcherHtml = "";
+    let switcherHtml =
+        "";
 
-    if (selectedLifts.length > 1) {
+    if (
+        selectedLifts.length > 1
+    ) {
         switcherHtml =
             `<div class="lift-switcher">`;
 
-        selectedLifts.forEach(key => {
-            switcherHtml += `
-                <button
-                    class="lift-pill ${
-                        key === activeLift
-                            ? "active"
-                            : ""
-                    }"
-                    onclick="switchActiveLift('${key}')"
-                >
-                    ${LIFTS[key].icon}
-                    ${LIFTS[key].label}
-                </button>
-            `;
-        });
+        selectedLifts.forEach(
+            key => {
+                switcherHtml += `
+                    <button
+                        class="lift-pill ${
+                            key === activeLift
+                                ? "active"
+                                : ""
+                        }"
+                        onclick="switchActiveLift('${key}')"
+                    >
+                        ${LIFTS[key].icon}
+                        ${LIFTS[key].label}
+                    </button>
+                `;
+            }
+        );
 
-        switcherHtml += `</div>`;
+        switcherHtml +=
+            `</div>`;
     }
 
-    let goalBannerHtml = "";
+    let goalBannerHtml =
+        "";
 
     if (
         progress.completedCount >=
@@ -1132,22 +1517,35 @@ function getPathTabHtml() {
     const nodeCount =
         progress.workouts.length;
 
-    const verticalSpacing = 90;
-    const weekLabelHeight = 50;
-    const amplitude = 55;
-    const centerX = 160;
-    const topPadding = 30;
+    const verticalSpacing =
+        90;
+
+    const weekLabelHeight =
+        50;
+
+    const amplitude =
+        55;
+
+    const centerX =
+        160;
+
+    const topPadding =
+        30;
 
     // Идём сверху вниз:
     // первая тренировка — вверху,
     // цель — внизу.
 
-    let cursorY = topPadding;
+    let cursorY =
+        topPadding;
 
-    let lastWeekIdx = -1;
+    let lastWeekIdx =
+        -1;
 
     const nodeY = [];
+
     const weekLabels = [];
+
     const points = [];
 
     for (
@@ -1167,7 +1565,9 @@ function getPathTabHtml() {
             weekLabels.push({
                 weekNumber:
                     weekIdx + 1,
-                y: cursorY
+
+                y:
+                    cursorY
             });
 
             cursorY +=
@@ -1177,12 +1577,16 @@ function getPathTabHtml() {
                 weekIdx;
         }
 
-        nodeY.push(cursorY);
+        nodeY.push(
+            cursorY
+        );
 
         const x =
             centerX +
             amplitude *
-            Math.sin(i * 0.9);
+                Math.sin(
+                    i * 0.9
+                );
 
         points.push(
             `${x},${cursorY}`
@@ -1197,7 +1601,8 @@ function getPathTabHtml() {
         verticalSpacing +
         topPadding;
 
-    let nodesHtml = "";
+    let nodesHtml =
+        "";
 
     for (
         let i = 0;
@@ -1207,7 +1612,9 @@ function getPathTabHtml() {
         const x =
             centerX +
             amplitude *
-            Math.sin(i * 0.9);
+                Math.sin(
+                    i * 0.9
+                );
 
         const y =
             nodeY[i];
@@ -1233,6 +1640,7 @@ function getPathTabHtml() {
 
             clickAttr =
                 `onclick="openNode(${i})"`;
+
         } else if (
             i ===
             progress.completedCount
@@ -1260,12 +1668,14 @@ function getPathTabHtml() {
 
                 <div class="path-node-weight">
                     ${formatKg(
-                        progress.workouts[i].estMax
+                        progress.workouts[i]
+                            .estMax
                     )} кг
                 </div>
 
                 <div class="path-node-phase">
-                    ${progress.workouts[i].phaseLabel}
+                    ${progress.workouts[i]
+                        .phaseLabel}
                 </div>
 
             </div>
@@ -1274,14 +1684,17 @@ function getPathTabHtml() {
 
     const weekLabelsHtml =
         weekLabels
-            .map(w => `
-                <div
-                    class="week-label"
-                    style="top:${w.y}px;"
-                >
-                    Неделя ${w.weekNumber}
-                </div>
-            `)
+            .map(
+                w => `
+                    <div
+                        class="week-label"
+                        style="top:${w.y}px;"
+                    >
+                        Неделя
+                        ${w.weekNumber}
+                    </div>
+                `
+            )
             .join("");
 
     const pointsStr =
@@ -1303,16 +1716,19 @@ function getPathTabHtml() {
 
         <p class="subtitle">
             Старт:
-            ${formatKg(progress.current)} кг
+            ${formatKg(progress.current)}
+            кг
             ·
             Цель:
-            ${formatKg(progress.goal)} кг
+            ${formatKg(progress.goal)}
+            кг
             ·
             ${freqLabel}
             ·
             шаг:
             +${formatKg(
-                LIFTS[activeLift].increment
+                LIFTS[activeLift]
+                    .increment
             )} кг
         </p>
 
@@ -1354,13 +1770,21 @@ function getPathTabHtml() {
     `;
 }
 
-function switchActiveLift(key) {
-    activeLift = key;
-    viewingNodeIndex = null;
+
+function switchActiveLift(
+    key
+) {
+    activeLift =
+        key;
+
+    viewingNodeIndex =
+        null;
 
     saveState();
+
     renderApp();
 }
+
 
 function lockedNodeClick() {
     alert(
@@ -1368,15 +1792,22 @@ function lockedNodeClick() {
     );
 }
 
+
 function openNode(i) {
-    viewingNodeIndex = i;
+    viewingNodeIndex =
+        i;
+
     renderApp();
 }
 
+
 function closeNode() {
-    viewingNodeIndex = null;
+    viewingNodeIndex =
+        null;
+
     renderApp();
 }
+
 
 // ---------- ЭКРАН ТРЕНИРОВКИ ----------
 
@@ -1394,13 +1825,17 @@ function getNodeDetailHtml() {
         progress.workouts[i];
 
     const isCompleted =
-        i < progress.completedCount;
+        i <
+        progress.completedCount;
 
     const isCurrent =
-        i === progress.completedCount;
+        i ===
+        progress.completedCount;
 
     // Быстрая навигация по тренировкам
-    let tabsHtml = "";
+
+    let tabsHtml =
+        "";
 
     progress.workouts.forEach(
         (w, idx) => {
@@ -1453,79 +1888,86 @@ function getNodeDetailHtml() {
 
     const setsHtml =
         workout.sets
-            .map((s, si) => {
-                const checked =
-                    workout.checked[si];
+            .map(
+                (s, si) => {
+                    const checked =
+                        workout.checked[
+                            si
+                        ];
 
-                const typeLabel =
-                    s.label ||
-                    "рабочий";
+                    const typeLabel =
+                        s.label ||
+                        "рабочий";
 
-                const canToggle =
-                    isCurrent;
+                    const canToggle =
+                        isCurrent;
 
-                return `
-                    <div
-                        class="
-                            set-row
-                            ${
-                                checked
-                                    ? "checked"
-                                    : ""
-                            }
-                            ${
-                                canToggle
-                                    ? ""
-                                    : "readonly"
-                            }
-                        "
-                        ${
-                            canToggle
-                                ? `onclick="toggleSetCheck(${si})"`
-                                : ""
-                        }
-                    >
-
-                        <div class="set-index">
-                            ${si + 1}
-                        </div>
-
-                        <div class="set-info">
-
-                            <div class="set-weight">
-                                ${formatKg(s.weight)}
-                                кг ×
-                                ${s.reps}
-                            </div>
-
-                        </div>
-
+                    return `
                         <div
                             class="
-                                set-type-badge
-                                ${s.type}
-                            "
-                        >
-                            ${typeLabel}
-                        </div>
-
-                        <div
-                            class="
-                                set-checkbox
+                                set-row
                                 ${
                                     checked
                                         ? "checked"
                                         : ""
                                 }
+                                ${
+                                    canToggle
+                                        ? ""
+                                        : "readonly"
+                                }
                             "
-                        ></div>
+                            ${
+                                canToggle
+                                    ? `onclick="toggleSetCheck(${si})"`
+                                    : ""
+                            }
+                        >
 
-                    </div>
-                `;
-            })
+                            <div class="set-index">
+                                ${si + 1}
+                            </div>
+
+                            <div class="set-info">
+
+                                <div class="set-weight">
+                                    ${formatKg(
+                                        s.weight
+                                    )}
+                                    кг ×
+                                    ${s.reps}
+                                </div>
+
+                            </div>
+
+                            <div
+                                class="
+                                    set-type-badge
+                                    ${s.type}
+                                "
+                            >
+                                ${typeLabel}
+                            </div>
+
+                            <div
+                                class="
+                                    set-checkbox
+                                    ${
+                                        checked
+                                            ? "checked"
+                                            : ""
+                                    }
+                                "
+                            ></div>
+
+                        </div>
+                    `;
+                }
+            )
             .join("");
 
-    let actionHtml = "";
+    let actionHtml =
+        "";
 
     if (isCurrent) {
         actionHtml = `
@@ -1550,12 +1992,14 @@ function getNodeDetailHtml() {
                 </p>
             `;
         }
+
     } else if (isCompleted) {
         actionHtml = `
             <div class="completed-badge">
                 Пройдено ✅
             </div>
         `;
+
     } else {
         actionHtml = `
             <div class="completed-badge">
@@ -1588,12 +2032,15 @@ function getNodeDetailHtml() {
         <div class="workout-header-row">
 
             <h2>
-                Тренировка ${i + 1}
+                Тренировка
+                ${i + 1}
             </h2>
 
             <div class="max-badge">
                 1ПМ =
-                ${formatKg(workout.estMax)}
+                ${formatKg(
+                    workout.estMax
+                )}
                 кг
             </div>
 
@@ -1628,11 +2075,15 @@ function getNodeDetailHtml() {
     `;
 }
 
-function toggleSetCheck(si) {
+
+function toggleSetCheck(
+    si
+) {
     const progress =
         userProgress[activeLift];
 
     // Менять можно только текущую тренировку.
+
     if (
         viewingNodeIndex !==
         progress.completedCount
@@ -1649,8 +2100,10 @@ function toggleSetCheck(si) {
         !workout.checked[si];
 
     saveState();
+
     renderApp();
 }
+
 
 function completeNode() {
     const progress =
@@ -1673,16 +2126,19 @@ function completeNode() {
         return;
     }
 
-    workout.completed = true;
+    workout.completed =
+        true;
 
     progress.completedCount++;
 
     saveState();
 
-    viewingNodeIndex = null;
+    viewingNodeIndex =
+        null;
 
     renderApp();
 }
+
 
 // ---------- НОВАЯ ЦЕЛЬ ----------
 
@@ -1692,11 +2148,15 @@ function extendGoal() {
 
     const input =
         window.prompt(
-            `Текущая цель: ${formatKg(progress.goal)} кг.\n` +
+            `Текущая цель: ${formatKg(
+                progress.goal
+            )} кг.\n` +
             `Какой новый максимум хочешь показать?`
         );
 
-    if (input === null) {
+    if (
+        input === null
+    ) {
         return;
     }
 
@@ -1708,7 +2168,8 @@ function extendGoal() {
 
     if (
         isNaN(newGoal) ||
-        newGoal <= progress.goal ||
+        newGoal <=
+            progress.goal ||
         Math.abs(
             newGoal / step -
             Math.round(
@@ -1718,7 +2179,9 @@ function extendGoal() {
     ) {
         alert(
             `Новая цель должна быть больше текущей ` +
-            `и кратна ${formatKg(step)} кг`
+            `и кратна ${formatKg(
+                step
+            )} кг`
         );
 
         return;
@@ -1726,7 +2189,8 @@ function extendGoal() {
 
     const nextStart =
         progress.goal +
-        LIFTS[activeLift].increment;
+        LIFTS[activeLift]
+            .increment;
 
     const extraWorkouts =
         generateWorkouts(
@@ -1745,8 +2209,10 @@ function extendGoal() {
         newGoal;
 
     saveState();
+
     renderApp();
 }
+
 
 // ---------- ВКЛАДКА "ПРЕМИУМ" ----------
 
@@ -1825,7 +2291,10 @@ function getPremiumTabHtml() {
     `;
 }
 
-function goToUpgrade(tier) {
+
+function goToUpgrade(
+    tier
+) {
     const price =
         tier === 2
             ? "1€"
@@ -1837,6 +2306,7 @@ function goToUpgrade(tier) {
         `Пока это демонстрация интерфейса.`
     );
 }
+
 
 // ---------- ВКЛАДКА "ПРОФИЛЬ" ----------
 
@@ -1918,13 +2388,18 @@ function getProfileTabHtml() {
     `;
 }
 
-function setUnlockedLiftCountDebug(value) {
+
+function setUnlockedLiftCountDebug(
+    value
+) {
     unlockedLiftCount =
         Number(value);
 
     saveState();
+
     renderApp();
 }
+
 
 // ---------- СТАРТ ПРИЛОЖЕНИЯ ----------
 
@@ -1933,10 +2408,14 @@ try {
         loadState();
 
     if (hasSavedState) {
-        appState = "main";
-        activeTab = "path";
+        appState =
+            "main";
+
+        activeTab =
+            "path";
 
         renderApp();
+
     } else {
         appState =
             "onboarding-lift-select";
@@ -1945,7 +2424,6 @@ try {
     }
 
 } catch (e) {
-
     console.error(
         "Ошибка запуска приложения:",
         e
@@ -1978,5 +2456,6 @@ try {
             </button>
 
         </div>
+
     `;
 }

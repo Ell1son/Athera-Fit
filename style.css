@@ -730,3 +730,152 @@ h2 {
 .path-node.completed .path-node-phase {
     color: #6fe08c;
 }
+
+/* ==========================================================
+   V3 SAFE UI PATCH
+   Только визуальный слой. Логика тренировок не изменяется.
+   ========================================================== */
+
+/* На десктопе основной экран использует доступную ширину,
+   а онбординг и внутренние карточки остаются компактными. */
+@media (min-width: 900px) {
+    .screen-inner.main-screen {
+        max-width: 1080px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+
+    .bottom-nav {
+        max-width: 1080px;
+    }
+}
+
+/* Лёгкая глубина фона — без новых элементов и без нагрузки на JS. */
+#app:has(.path-container) {
+    background:
+        radial-gradient(circle at 50% 22%, rgba(110, 55, 190, .10), transparent 34%),
+        radial-gradient(circle at 50% 78%, rgba(60, 40, 120, .07), transparent 38%),
+        #0d0d12;
+}
+
+/* Путь теперь занимает всю доступную ширину. */
+.path-container {
+    width: 100%;
+    max-width: 720px;
+    margin: 8px auto 48px;
+}
+
+.path-svg {
+    overflow: visible;
+}
+
+/* Более объёмные станции, но без тяжёлого 3D-движка. */
+.path-node-inner {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    position: relative;
+    background:
+        radial-gradient(circle at 32% 25%, rgba(255,255,255,.25), transparent 18%),
+        radial-gradient(circle at 50% 45%, #30213f 0%, #1b1823 58%, #111117 100%);
+    border: 2px solid #35313e;
+    box-shadow:
+        inset 0 5px 10px rgba(255,255,255,.08),
+        inset 0 -10px 14px rgba(0,0,0,.55),
+        0 8px 0 #08080b,
+        0 12px 22px rgba(0,0,0,.42);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.path-node:hover .path-node-inner,
+.path-node:focus .path-node-inner {
+    transform: translateY(-2px) scale(1.035);
+}
+
+.path-node.current .path-node-inner {
+    background:
+        radial-gradient(circle at 32% 23%, rgba(255,255,255,.30), transparent 19%),
+        radial-gradient(circle at 50% 46%, #9b55ff 0%, #622bb4 52%, #291445 100%);
+    border-color: #c994ff;
+    box-shadow:
+        inset 0 5px 10px rgba(255,255,255,.18),
+        inset 0 -12px 16px rgba(30,0,60,.45),
+        0 8px 0 #241039,
+        0 0 0 5px rgba(162,89,255,.12),
+        0 12px 30px rgba(120,55,220,.28);
+}
+
+.path-node.completed .path-node-inner {
+    background:
+        radial-gradient(circle at 32% 23%, rgba(255,255,255,.18), transparent 19%),
+        radial-gradient(circle at 50% 46%, #245033 0%, #173020 55%, #0f1d15 100%);
+    border-color: #4bbd72;
+    box-shadow:
+        inset 0 5px 10px rgba(255,255,255,.08),
+        inset 0 -10px 14px rgba(0,0,0,.48),
+        0 8px 0 #09120d,
+        0 8px 22px rgba(45,150,80,.12);
+}
+
+.path-node.locked .path-node-inner {
+    background:
+        radial-gradient(circle at 32% 23%, rgba(255,255,255,.06), transparent 19%),
+        linear-gradient(145deg, #222127, #141419);
+    border-color: #2b2a31;
+    box-shadow:
+        inset 0 4px 8px rgba(255,255,255,.03),
+        0 7px 0 #09090b;
+}
+
+.path-node-weight {
+    margin-top: 9px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #aaa7b2;
+}
+
+.path-node-phase {
+    margin-top: 3px;
+    font-size: 10px;
+    color: #77737f;
+}
+
+.week-label {
+    font-size: 13px;
+    color: #aaa6b2;
+    opacity: .9;
+}
+
+/* На маленьких экранах не увеличиваем станцию слишком сильно. */
+@media (max-width: 520px) {
+    .path-container {
+        max-width: 430px;
+    }
+
+    .path-node-inner {
+        width: 58px;
+        height: 58px;
+    }
+
+    .path-node-weight {
+        font-size: 11px;
+    }
+
+    .path-node-phase {
+        font-size: 9px;
+    }
+}
+
+/* На очень узких экранах чуть уменьшаем амплитуду визуально,
+   не меняя координаты JS. */
+@media (max-width: 360px) {
+    .path-container {
+        max-width: 100%;
+    }
+
+    .path-node-inner {
+        width: 54px;
+        height: 54px;
+        font-size: 17px;
+    }
+}
