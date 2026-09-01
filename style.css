@@ -1,881 +1,2417 @@
-* { box-sizing: border-box; }
+/* ========================================
+   ATHERA FIT — ОСНОВНЫЕ НАСТРОЙКИ
+======================================== */
 
-:root {
-    --app-max-width: 400px;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-@media (min-width: 700px) {
-    :root {
-        --app-max-width: 480px;
-    }
+html {
+    min-height: 100%;
+    background: #0d0e16;
 }
 
 body {
-    margin: 0;
-    background-color: #000;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
+    background: #0d0e16;
+    color: #f4f1f8;
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+    overflow-x: hidden;
 }
+
+button {
+    font: inherit;
+}
+
+button,
+.option-card {
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ========================================
+   ПЕРЕМЕННЫЕ
+======================================== */
+
+:root {
+
+    --bg:
+        #0d0e16;
+
+    --surface:
+        #151620;
+
+    --surface-light:
+        #1c1d2a;
+
+    --surface-hover:
+        #222331;
+
+    --text:
+        #f4f1f8;
+
+    --muted:
+        #93909f;
+
+    --accent:
+        #b88cff;
+
+    --accent-light:
+        #d2b5ff;
+
+    --accent-dark:
+        #8758d4;
+
+    --border:
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    --green:
+        #62d7a2;
+
+}
+
+
+/* ========================================
+   ПРИЛОЖЕНИЕ
+======================================== */
 
 #app {
     width: 100%;
     min-height: 100vh;
-    background-color: #0d0d12;
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    position: relative;
 }
+
+.app-shell {
+    width: 100%;
+    min-height: 100vh;
+
+    padding-bottom: 95px;
+}
+
+.main-content {
+    width: 100%;
+}
+
+
+/* ========================================
+   ОСНОВНОЙ КОНТЕЙНЕР
+======================================== */
 
 .screen-inner {
     width: 100%;
-    max-width: var(--app-max-width);
-    padding: 20px 20px 30px 20px;
+    max-width: 720px;
+
+    margin: 0 auto;
+
+    padding:
+        40px
+        28px
+        120px;
+}
+
+.content {
     display: flex;
     flex-direction: column;
+    gap: 12px;
+
+    margin-top: 30px;
 }
 
-.screen-inner.main-screen {
-    padding: 20px 20px 0 20px;
+
+/* ========================================
+   ЗАГОЛОВКИ
+======================================== */
+
+h2 {
+    font-size: 32px;
+    line-height: 1.1;
+    font-weight: 750;
+
+    letter-spacing: -1px;
+
+    margin-bottom: 10px;
 }
 
-.tab-content {
-    padding-bottom: calc(90px + env(safe-area-inset-bottom));
+h3 {
+    font-size: 20px;
 }
 
-@media (min-width: 700px) {
-    .screen-inner {
-        padding: 40px 20px 50px 20px;
+.accent {
+    color: var(--accent);
+}
+
+.subtitle {
+    color: var(--muted);
+
+    font-size: 15px;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   АНИМАЦИИ
+======================================== */
+
+.page-enter {
+    animation:
+        pageEnter
+        0.35s
+        ease;
+}
+
+@keyframes pageEnter {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(12px);
     }
-    .screen-inner.main-screen {
-        padding: 40px 20px 0 20px;
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0);
     }
+
 }
+
+
+.option-card,
+.path-node-wrapper,
+.plan-card,
+.progress-chart-card,
+.profile-plan-card {
+    animation:
+        fadeUp
+        0.4s
+        ease
+        both;
+}
+
+@keyframes fadeUp {
+
+    from {
+        opacity: 0;
+        transform:
+            translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            translateY(0);
+    }
+
+}
+
+
+/* ========================================
+   ВЕРХНЯЯ ПАНЕЛЬ
+======================================== */
 
 .top-bar {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-}
 
-.top-bar-title {
-    margin: 0;
-    flex: 1;
-    font-size: 20px;
+    justify-content: space-between;
+
+    margin-bottom: 28px;
 }
 
 .back-btn {
-    background: #1c1c22;
-    border: none;
-    color: #fff;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    font-size: 16px;
+    width: 44px;
+    height: 44px;
+
+    border-radius: 14px;
+
+    border:
+        1px
+        solid
+        var(--border);
+
+    background:
+        var(--surface);
+
+    color:
+        var(--text);
+
     cursor: pointer;
-    flex-shrink: 0;
+
+    font-size: 22px;
+
+    transition:
+        0.2s ease;
+}
+
+.back-btn:hover {
+    background:
+        var(--surface-hover);
+
+    transform:
+        translateX(-2px);
 }
 
 .step-counter {
-    font-size: 13px;
-    color: #9a9aa5;
-    background: #1c1c22;
-    padding: 6px 10px;
-    border-radius: 12px;
-    flex-shrink: 0;
-}
+    color:
+        var(--muted);
 
-h2 {
-    font-size: 26px;
-    line-height: 1.3;
-    margin: 0 0 10px 0;
-}
-
-.accent {
-    background: linear-gradient(90deg, #a259ff, #d19bff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.subtitle {
-    color: #9a9aa5;
     font-size: 14px;
-    margin: 0 0 20px 0;
-    line-height: 1.4;
 }
 
-.content { flex: 1; }
+.top-bar-title {
+    font-size: 18px;
 
-/* Карточки выбора (лифт, частота тренировок и т.д.) */
+    margin: 0;
+}
+
+
+/* ========================================
+   КАРТОЧКИ ВЫБОРА
+======================================== */
 
 .option-card {
     display: flex;
     align-items: center;
-    gap: 14px;
-    background-color: #1c1c22;
-    border: 1px solid #2a2a32;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 12px;
+
+    gap: 16px;
+
+    width: 100%;
+
+    padding: 18px;
+
+    border-radius: 20px;
+
+    background:
+        var(--surface);
+
+    border:
+        1px
+        solid
+        var(--border);
+
     cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+
+    transition:
+        transform
+        0.2s ease,
+
+        border
+        0.2s ease,
+
+        background
+        0.2s ease;
+}
+
+.option-card:hover {
+    transform:
+        translateY(-2px);
+
+    background:
+        var(--surface-hover);
 }
 
 .option-card.selected {
-    border-color: #a259ff;
-    background-color: #241a33;
+    border-color:
+        var(--accent);
+
+    background:
+        rgba(
+            184,
+            140,
+            255,
+            0.08
+        );
+}
+
+.locked-option {
+    opacity: 0.55;
 }
 
 .option-icon {
-    width: 44px;
-    height: 44px;
-    background-color: #2a2a32;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+
+    width: 48px;
+    height: 48px;
+
     flex-shrink: 0;
+
+    border-radius: 16px;
+
+    background:
+        rgba(
+            184,
+            140,
+            255,
+            0.12
+        );
+
+    font-size: 22px;
 }
 
-.option-text { flex: 1; }
+.option-text {
+    flex: 1;
+}
 
 .option-title {
-    font-size: 16px;
-    font-weight: 600;
+    color:
+        var(--text);
+
+    font-size: 17px;
+
+    font-weight: 650;
 }
 
 .option-desc {
+    margin-top: 4px;
+
+    color:
+        var(--muted);
+
     font-size: 13px;
-    color: #9a9aa5;
-    margin-top: 3px;
+
     line-height: 1.4;
 }
 
 .option-check {
     width: 22px;
     height: 22px;
+
     border-radius: 50%;
-    border: 2px solid #444;
-    flex-shrink: 0;
+
+    border:
+        2px
+        solid
+        rgba(
+            255,
+            255,
+            255,
+            0.2
+        );
 }
 
-.option-card.selected .option-check {
-    border-color: #a259ff;
-    background-color: #a259ff;
+.option-card.selected
+.option-check {
+    border-color:
+        var(--accent);
+
+    background:
+        var(--accent);
+
+    box-shadow:
+        inset
+        0
+        0
+        0
+        4px
+        var(--surface);
 }
 
-/* Баннер апгрейда */
+
+/* ========================================
+   ОСНОВНЫЕ КНОПКИ
+======================================== */
+
+.next-btn,
+.upgrade-btn {
+    width: 100%;
+
+    border: none;
+
+    border-radius: 18px;
+
+    padding:
+        17px
+        20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent-dark)
+        );
+
+    color:
+        white;
+
+    font-weight: 700;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    margin-top: 28px;
+
+    box-shadow:
+        0
+        8px
+        30px
+        rgba(
+            184,
+            140,
+            255,
+            0.2
+        );
+
+    transition:
+        transform
+        0.2s ease,
+
+        opacity
+        0.2s ease;
+}
+
+.next-btn:hover,
+.upgrade-btn:hover {
+    transform:
+        translateY(-2px);
+}
+
+.next-btn:active,
+.upgrade-btn:active {
+    transform:
+        scale(0.98);
+}
+
+.next-btn.disabled {
+    opacity: 0.4;
+
+    pointer-events: none;
+}
+
+.secondary-btn {
+    width: 100%;
+
+    padding: 15px;
+
+    margin-top: 16px;
+
+    border-radius: 16px;
+
+    border:
+        1px
+        solid
+        var(--border);
+
+    background:
+        transparent;
+
+    color:
+        var(--muted);
+
+    cursor: pointer;
+
+    transition:
+        0.2s ease;
+}
+
+.secondary-btn:hover {
+    color:
+        #ff8b8b;
+
+    border-color:
+        rgba(
+            255,
+            100,
+            100,
+            0.3
+        );
+}
+
+
+/* ========================================
+   UPSSELL
+======================================== */
 
 .upsell-banner {
-    background: linear-gradient(135deg, #241a33, #1c1c22);
-    border: 1px solid #a259ff;
-    border-radius: 16px;
-    padding: 16px;
-    margin-bottom: 16px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 18px;
+
+    padding: 18px;
+
+    border-radius: 20px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(
+                184,
+                140,
+                255,
+                0.15
+            ),
+            rgba(
+                120,
+                80,
+                200,
+                0.08
+            )
+        );
+
+    border:
+        1px
+        solid
+        rgba(
+            184,
+            140,
+            255,
+            0.25
+        );
 }
 
 .upsell-text {
-    font-size: 14px;
-    color: #d9d9e0;
+    color:
+        var(--muted);
+
+    font-size: 13px;
+
     line-height: 1.5;
-    margin-bottom: 14px;
 }
 
+.upsell-text b {
+    color:
+        var(--text);
+}
+
+.upsell-banner
 .upgrade-btn {
-    background: linear-gradient(90deg, #7b2ff7, #b366ff);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
+    width: auto;
+
+    margin: 0;
+
+    padding:
+        11px
+        16px;
+
+    font-size: 13px;
+
+    white-space: nowrap;
 }
 
-/* Пикер чисел (текущий максимум / цель) */
+
+/* ========================================
+   ВЫБОР ВЕСА
+======================================== */
 
 .picker-wrapper {
     position: relative;
+
     height: 280px;
-    margin: 20px 0;
+
+    overflow: hidden;
+
+    margin-top: 25px;
+
+    border-radius: 22px;
+
+    background:
+        var(--surface);
+
+    border:
+        1px
+        solid
+        var(--border);
 }
 
-.picker-list {
-    height: 100%;
-    overflow-y: scroll;
-    scroll-snap-type: y mandatory;
-    padding: 112px 0;
-    scrollbar-width: none;
+.picker-wrapper::before,
+.picker-wrapper::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+
+    height: 90px;
+
+    z-index: 2;
+
+    pointer-events: none;
 }
 
-.picker-list::-webkit-scrollbar { display: none; }
+.picker-wrapper::before {
+    top: 0;
 
-.picker-item {
-    height: 56px;
-    line-height: 56px;
-    text-align: center;
-    font-size: 20px;
-    color: #555;
-    scroll-snap-align: center;
+    background:
+        linear-gradient(
+            var(--surface),
+            transparent
+        );
 }
 
-.picker-item.active {
-    font-size: 28px;
-    font-weight: 700;
-    color: #fff;
+.picker-wrapper::after {
+    bottom: 0;
+
+    background:
+        linear-gradient(
+            transparent,
+            var(--surface)
+        );
 }
 
 .picker-highlight {
     position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
+
+    top: 112px;
+    left: 12px;
+    right: 12px;
+
     height: 56px;
-    transform: translateY(-50%);
-    border-top: 1px solid #a259ff;
-    border-bottom: 1px solid #a259ff;
+
+    border-radius: 14px;
+
+    background:
+        rgba(
+            184,
+            140,
+            255,
+            0.12
+        );
+
+    border:
+        1px
+        solid
+        rgba(
+            184,
+            140,
+            255,
+            0.35
+        );
+
     pointer-events: none;
+
+    z-index: 1;
 }
 
-.next-btn {
-    background: linear-gradient(90deg, #7b2ff7, #b366ff);
-    color: #fff;
-    border: none;
-    border-radius: 16px;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 20px;
+.picker-list {
+    height: 100%;
+
+    overflow-y: scroll;
+
+    padding:
+        112px
+        0;
+
+    scrollbar-width: none;
+
+    scroll-snap-type:
+        y
+        mandatory;
 }
 
-.next-btn:disabled {
-    background: #2a2a32;
-    color: #7a7a85;
-    cursor: not-allowed;
+.picker-list::-webkit-scrollbar {
+    display: none;
 }
 
-.hint-text {
-    text-align: center;
-    color: #7a7a85;
-    font-size: 12px;
-    margin: 10px 0 0 0;
+.picker-item {
+    height: 56px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    scroll-snap-align:
+        center;
+
+    color:
+        var(--muted);
+
+    font-size: 20px;
+
+    transition:
+        0.2s ease;
 }
 
-.secondary-btn {
-    background: transparent;
-    color: #ff6b6b;
-    border: 1px solid #3a2222;
-    border-radius: 16px;
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
+.picker-item.active {
+    color:
+        var(--text);
+
+    font-size: 24px;
+
+    font-weight: 750;
+}
+
+
+/* ========================================
+   ОСНОВНОЙ ПУТЬ
+======================================== */
+
+.path-page {
     width: 100%;
 }
 
-/* Быстрая навигация по номерам тренировок на экране тренировки */
-
-.workout-tabs {
+.path-header {
     display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    margin-bottom: 25px;
 }
 
-.workout-tab {
-    flex-shrink: 0;
-    width: 40px;
+.path-header h2 {
+    margin-bottom: 8px;
+}
+
+.path-percent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 58px;
     height: 40px;
-    border-radius: 50%;
-    border: 1px solid #2a2a32;
-    background-color: #1c1c22;
-    color: #7a7a85;
+
+    border-radius: 14px;
+
+    color:
+        var(--accent-light);
+
+    background:
+        rgba(
+            184,
+            140,
+            255,
+            0.1
+        );
+
+    border:
+        1px
+        solid
+        rgba(
+            184,
+            140,
+            255,
+            0.2
+        );
+
     font-size: 14px;
-    font-weight: 600;
+
+    font-weight: 700;
+}
+
+
+/* ========================================
+   ПЕРЕКЛЮЧАТЕЛЬ ЛИФТОВ
+======================================== */
+
+.lift-tabs {
+    display: flex;
+
+    gap: 8px;
+
+    overflow-x: auto;
+
+    padding-bottom: 5px;
+
+    margin-bottom: 24px;
+
+    scrollbar-width: none;
+}
+
+.lift-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.lift-pill {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    flex-shrink: 0;
+
+    border-radius: 14px;
+
+    padding:
+        10px
+        14px;
+
+    background:
+        var(--surface);
+
+    color:
+        var(--muted);
+
+    border:
+        1px
+        solid
+        var(--border);
+
     cursor: pointer;
+
+    transition:
+        0.2s ease;
 }
 
-.workout-tab.done {
-    border-color: #3fbf67;
-    color: #6fe08c;
+.lift-pill:hover {
+    background:
+        var(--surface-hover);
 }
 
-.workout-tab.current {
-    border-color: #a259ff;
-    color: #d19bff;
+.lift-pill.active {
+    color:
+        var(--text);
+
+    border-color:
+        var(--accent);
+
+    background:
+        rgba(
+            184,
+            140,
+            255,
+            0.1
+        );
 }
 
-.workout-tab.active {
-    background: linear-gradient(90deg, #7b2ff7, #b366ff);
-    border-color: transparent;
-    color: #fff;
+.lift-pill small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    font-size: 10px;
+}
+
+.add-lift {
+    font-size: 20px;
+}
+
+
+/* ========================================
+   ПРОГРЕСС
+======================================== */
+
+.progress-summary {
+    padding: 18px;
+
+    margin-bottom: 20px;
+
+    border-radius: 20px;
+
+    background:
+        var(--surface);
+
+    border:
+        1px
+        solid
+        var(--border);
+}
+
+.summary-top {
+    display: flex;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+
+    color:
+        var(--muted);
+
+    font-size: 14px;
+}
+
+.summary-top strong {
+    color:
+        var(--text);
+}
+
+.summary-progress {
+    width: 100%;
+    height: 8px;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.07
+        );
+}
+
+.summary-progress-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--accent-dark),
+            var(--accent-light)
+        );
+
+    transition:
+        width
+        0.7s ease;
+}
+
+
+/* ========================================
+   ТЕКУЩИЙ ВЕС И ЦЕЛЬ
+======================================== */
+
+.current-goal-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 20px;
+
+    padding: 20px;
+
+    margin-bottom: 35px;
+
+    border-radius: 20px;
+
+    background:
+        var(--surface);
+
+    border:
+        1px
+        solid
+        var(--border);
+}
+
+.weight-stat {
+    flex: 1;
+}
+
+.weight-stat span {
+    display: block;
+
+    color:
+        var(--muted);
+
+    font-size: 12px;
+
+    margin-bottom: 6px;
+}
+
+.weight-stat strong {
+    font-size: 20px;
+}
+
+.weight-stat.goal {
+    text-align: right;
+}
+
+.weight-stat.goal strong {
+    color:
+        var(--accent-light);
+}
+
+.weight-arrow {
+    color:
+        var(--muted);
+
+    font-size: 24px;
+}
+
+
+/* ========================================
+   ЗАГОЛОВОК ПУТИ
+======================================== */
+
+.path-section-title {
+    margin-bottom: 20px;
+
+    color:
+        var(--text);
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+/* ========================================
+   ТРЕНИРОВОЧНЫЙ ПУТЬ
+======================================== */
+
+.training-path {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    padding-bottom: 30px;
+}
+
+.path-node-wrapper {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    min-height: 78px;
+
+    padding:
+        10px
+        0;
+}
+
+.path-connector {
+    position: absolute;
+
+    left: 21px;
+    top: -18px;
+
+    width: 2px;
+    height: 38px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.1
+        );
+}
+
+.path-connector.completed {
+    background:
+        var(--accent);
+}
+
+.path-node {
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    border:
+        2px
+        solid
+        rgba(
+            255,
+            255,
+            255,
+            0.15
+        );
+
+    background:
+        var(--surface);
+
+    color:
+        var(--muted);
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        0.25s ease;
+}
+
+.path-node.completed {
+    background:
+        var(--accent);
+
+    border-color:
+        var(--accent);
+
+    color:
+        white;
+}
+
+.path-node.current {
+    border-color:
+        var(--accent);
+
+    color:
+        var(--accent-light);
+
+    box-shadow:
+        0
+        0
+        0
+        6px
+        rgba(
+            184,
+            140,
+            255,
+            0.08
+        );
+}
+
+.path-node.locked {
+    opacity: 0.5;
+
+    cursor: not-allowed;
+}
+
+.path-node-content {
+    flex: 1;
+
+    min-width: 0;
+
+    padding:
+        8px
+        0;
+}
+
+.path-node-title {
+    color:
+        var(--text);
+
+    font-size: 16px;
+
+    font-weight: 650;
+}
+
+.path-node-subtitle {
+    margin-top: 5px;
+
+    color:
+        var(--muted);
+
+    font-size: 13px;
+}
+
+.current-workout-label,
+.completed-workout-label {
+    display: inline-block;
+
+    margin-top: 7px;
+
+    padding:
+        4px
+        9px;
+
+    border-radius: 8px;
+
+    font-size: 10px;
+
+    font-weight: 700;
+}
+
+.current-workout-label {
+    color:
+        var(--accent-light);
+
+    background:
+        rgba(
+            184,
+            140,
+            255,
+            0.12
+        );
+}
+
+.completed-workout-label {
+    color:
+        var(--green);
+
+    background:
+        rgba(
+            98,
+            215,
+            162,
+            0.08
+        );
+}
+
+.path-node-arrow {
+    color:
+        var(--muted);
+
+    font-size: 28px;
+
+    padding-right: 6px;
+}
+
+.path-node-arrow.locked {
+    opacity: 0.3;
+}
+
+
+/* ========================================
+   ЗАВЕРШЁННЫЙ ПУТЬ
+======================================== */
+
+.path-finished-card {
+    text-align: center;
+
+    padding: 30px;
+
+    margin-top: 15px;
+
+    border-radius: 24px;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(
+                184,
+                140,
+                255,
+                0.16
+            ),
+            var(--surface)
+        );
+
+    border:
+        1px
+        solid
+        rgba(
+            184,
+            140,
+            255,
+            0.25
+        );
+}
+
+.finished-icon {
+    font-size: 40px;
+
+    margin-bottom: 12px;
+}
+
+.path-finished-card p {
+    color:
+        var(--muted);
+
+    margin-top: 8px;
+
+    font-size: 14px;
+}
+
+/* ========================================
+   ДЕТАЛЬНАЯ СТРАНИЦА ТРЕНИРОВКИ
+======================================== */
+
+.workout-detail {
+    width: 100%;
 }
 
 .workout-header-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
+
+    gap: 15px;
+
+    margin-bottom: 24px;
 }
 
 .workout-header-row h2 {
-    margin: 0;
+    margin-bottom: 6px;
+}
+
+.workout-subtitle {
+    color: var(--muted);
+    font-size: 14px;
 }
 
 .max-badge {
     flex-shrink: 0;
-    background: linear-gradient(135deg, #3a2416, #241a1a);
-    border: 1px solid #ff9f45;
-    color: #ffb877;
-    font-size: 13px;
-    font-weight: 700;
-    padding: 8px 12px;
+
+    padding: 9px 12px;
+
     border-radius: 12px;
-    white-space: nowrap;
+
+    background:
+        rgba(184, 140, 255, 0.1);
+
+    border:
+        1px solid
+        rgba(184, 140, 255, 0.2);
+
+    color: var(--accent-light);
+
+    font-size: 12px;
+    font-weight: 700;
 }
 
-/* Список подходов с чекбоксами */
+
+/* ========================================
+   ИНФОРМАЦИЯ О ТРЕНИРОВКЕ
+======================================== */
+
+.workout-meta {
+    padding: 18px;
+
+    margin-bottom: 24px;
+
+    border-radius: 20px;
+
+    background: var(--surface);
+
+    border:
+        1px solid
+        var(--border);
+}
+
+.workout-meta-top {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 12px;
+}
+
+.phase-chip,
+.stage-chip {
+    padding: 7px 11px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.phase-chip {
+    color: var(--accent-light);
+
+    background:
+        rgba(184, 140, 255, 0.12);
+}
+
+.stage-chip {
+    color: var(--muted);
+
+    background:
+        rgba(255, 255, 255, 0.05);
+}
+
+.phase-note {
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   СПИСОК ПОДХОДОВ
+======================================== */
 
 .sets-list {
     display: flex;
     flex-direction: column;
+
     gap: 10px;
+
     margin-bottom: 10px;
 }
 
 .set-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    background-color: #1c1c22;
-    border: 1px solid #2a2a32;
-    border-radius: 14px;
-    padding: 12px 14px;
-    cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
-}
 
-.set-row.readonly {
-    cursor: default;
-    opacity: 0.85;
+    gap: 14px;
+
+    min-height: 76px;
+
+    padding: 14px;
+
+    border-radius: 18px;
+
+    background: var(--surface);
+
+    border:
+        1px solid
+        var(--border);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border 0.2s ease;
 }
 
 .set-row.checked {
-    border-color: #3fbf67;
-    background-color: #16241c;
+    background:
+        rgba(98, 215, 162, 0.06);
+
+    border-color:
+        rgba(98, 215, 162, 0.25);
 }
 
-.set-index {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: #2a2a32;
-    color: #d9d9e0;
-    font-size: 13px;
-    font-weight: 700;
+.set-number {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
     flex-shrink: 0;
+
+    border-radius: 50%;
+
+    color: var(--muted);
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    font-size: 13px;
+
+    font-weight: 700;
 }
 
-.set-info { flex: 1; }
+.set-main {
+    flex: 1;
+}
 
 .set-weight {
-    font-size: 17px;
-    font-weight: 700;
+    color: var(--text);
+
+    font-size: 18px;
+
+    font-weight: 750;
 }
 
-.set-type-badge {
-    flex-shrink: 0;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    color: #9a9aa5;
-    background-color: #2a2a32;
-    padding: 6px 10px;
-    border-radius: 10px;
-}
-
-.set-type-badge.negative {
-    color: #ffb877;
-    background-color: #3a2416;
-}
-
-.set-checkbox {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: 2px solid #444;
-    flex-shrink: 0;
-}
-
-.set-checkbox.checked {
-    border-color: #3fbf67;
-    background-color: #3fbf67;
-}
-
-/* Карточка упражнения / веса на экране тренировки */
-
-.workout-weight-card {
-    background: linear-gradient(135deg, #241a33, #1c1c22);
-    border: 1px solid #a259ff;
-    border-radius: 20px;
-    padding: 30px;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.workout-weight-value {
-    font-size: 40px;
-    font-weight: 800;
-}
-
-.workout-weight-label {
-    color: #9a9aa5;
-    font-size: 14px;
+.set-reps {
     margin-top: 4px;
+
+    color: var(--muted);
+
+    font-size: 12px;
 }
 
-.completed-badge {
-    text-align: center;
-    color: #9a9aa5;
-    padding: 16px;
-    font-size: 14px;
-}
+.set-type {
+    padding: 6px 9px;
 
-/* Переключатель лифтов (если открыто несколько) */
+    border-radius: 8px;
 
-.lift-switcher {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    overflow-x: auto;
-}
+    color: var(--muted);
 
-.lift-pill {
-    background-color: #1c1c22;
-    border: 1px solid #2a2a32;
-    color: #9a9aa5;
-    border-radius: 20px;
-    padding: 8px 14px;
-    font-size: 13px;
+    background:
+        rgba(255, 255, 255, 0.05);
+
+    font-size: 10px;
+
     white-space: nowrap;
-    cursor: pointer;
-    flex-shrink: 0;
 }
 
-.lift-pill.active {
-    background-color: #241a33;
-    border-color: #a259ff;
-    color: #fff;
+.set-type.top {
+    color: #ffcf73;
+
+    background:
+        rgba(255, 190, 80, 0.1);
 }
 
-/* Путь-гора с тренировками */
+.set-type.backoff {
+    color: var(--accent-light);
 
-.path-container {
-    position: relative;
-    margin: 10px 0 40px 0;
+    background:
+        rgba(184, 140, 255, 0.1);
 }
 
-.path-svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.set-type.deload {
+    color: var(--green);
+
+    background:
+        rgba(98, 215, 162, 0.08);
 }
 
-.path-node {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    z-index: 2;
-}
 
-.path-node-inner {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
+/* ========================================
+   ГАЛОЧКА ПОДХОДА
+======================================== */
+
+.set-check,
+.set-completed {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    font-weight: 700;
-    border: 3px solid #2a2a32;
-    background-color: #1c1c22;
-    color: #7a7a85;
+
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
 }
 
-.path-node.current .path-node-inner {
-    background: linear-gradient(135deg, #7b2ff7, #b366ff);
-    border-color: #d19bff;
-    color: #fff;
-    box-shadow: 0 0 0 6px rgba(162, 89, 255, 0.2);
-    animation: pulse 1.6s infinite;
+.set-check {
+    border:
+        2px solid
+        rgba(255, 255, 255, 0.15);
+
+    background: transparent;
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    transition: 0.2s ease;
 }
 
-.path-node.completed .path-node-inner {
-    background-color: #1f3a2a;
-    border-color: #3fbf67;
-    color: #6fe08c;
+.set-check:hover {
+    border-color: var(--accent);
+
+    transform: scale(1.05);
 }
 
-.path-node.locked .path-node-inner {
-    opacity: 0.6;
+.set-check.active {
+    background: var(--green);
+
+    border-color: var(--green);
+
+    animation:
+        checkPop
+        0.3s ease;
 }
 
-.path-node-weight {
-    margin-top: 6px;
-    font-size: 11px;
-    color: #9a9aa5;
-    white-space: nowrap;
+.set-completed {
+    color: var(--green);
+
+    background:
+        rgba(98, 215, 162, 0.1);
 }
 
-.week-label {
-    position: absolute;
-    left: 0;
-    right: 0;
+@keyframes checkPop {
+
+    0% {
+        transform: scale(0.7);
+    }
+
+    70% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+
+}
+
+
+/* ========================================
+   ЗАВЕРШЁННАЯ ТРЕНИРОВКА
+======================================== */
+
+.completed-badge {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 17px;
+
+    border-radius: 16px;
+
     text-align: center;
-    color: #d9d9e0;
-    font-size: 14px;
+
+    color: var(--green);
+
+    background:
+        rgba(98, 215, 162, 0.08);
+
+    border:
+        1px solid
+        rgba(98, 215, 162, 0.18);
+
+    font-weight: 650;
+}
+
+
+/* ========================================
+   ПРОФИЛЬ
+======================================== */
+
+.profile-plan-card {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 20px;
+
+    margin-top: 22px;
+
+    border-radius: 22px;
+
+    background: var(--surface);
+
+    border:
+        1px solid
+        var(--border);
+}
+
+.profile-plan-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 16px;
+
+    background:
+        rgba(184, 140, 255, 0.1);
+
+    font-size: 21px;
+}
+
+.profile-plan-info {
+    flex: 1;
+}
+
+.profile-plan-title {
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+.profile-plan-name {
+    margin-top: 4px;
+
+    font-size: 17px;
+
     font-weight: 700;
-    transform: translateY(-6px);
+}
+
+.profile-plan-count {
+    color: var(--accent-light);
+
+    font-size: 18px;
+
+    font-weight: 750;
+}
+
+
+/* ========================================
+   ГРАФИК ПРОГРЕССА
+======================================== */
+
+.progress-chart-card {
+    margin-top: 25px;
+
+    padding: 20px;
+
+    border-radius: 24px;
+
+    background: var(--surface);
+
+    border:
+        1px solid
+        var(--border);
+
+    overflow: hidden;
+}
+
+.chart-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    margin-bottom: 22px;
+}
+
+.chart-title {
+    color: var(--text);
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+.chart-subtitle {
+    margin-top: 5px;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+.chart-percent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 48px;
+
+    padding: 8px;
+
+    border-radius: 10px;
+
+    color: var(--accent-light);
+
+    background:
+        rgba(184, 140, 255, 0.1);
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.chart-visual {
+    position: relative;
+
+    width: 100%;
+    height: 130px;
+
+    margin-bottom: 18px;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(184, 140, 255, 0.08),
+            rgba(184, 140, 255, 0.01)
+        );
+}
+
+.chart-visual::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 31px,
+            rgba(255, 255, 255, 0.04) 32px
+        );
+}
+
+.progress-svg {
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: visible;
+
     z-index: 1;
 }
 
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(162, 89, 255, 0.4); }
-    70% { box-shadow: 0 0 0 12px rgba(162, 89, 255, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(162, 89, 255, 0); }
+.chart-line-svg {
+    fill: none;
+
+    stroke: var(--accent);
+
+    stroke-width: 3;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+    vector-effect:
+        non-scaling-stroke;
+
+    filter:
+        drop-shadow(
+            0 0 7px
+            rgba(184, 140, 255, 0.4)
+        );
+
+    animation:
+        chartAppear
+        1.2s ease;
 }
 
-/* Нижняя навигация */
+@keyframes chartAppear {
 
-.bottom-nav {
-    position: fixed;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: var(--app-max-width);
+    from {
+        opacity: 0;
+        stroke-dasharray: 400;
+        stroke-dashoffset: 400;
+    }
+
+    to {
+        opacity: 1;
+        stroke-dasharray: 400;
+        stroke-dashoffset: 0;
+    }
+
+}
+
+.chart-labels {
     display: flex;
-    background-color: #14141a;
-    border-top: 1px solid #2a2a32;
-    padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) 10px;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
 }
 
-.nav-item {
-    flex: 1;
-    background: none;
-    border: none;
-    color: #7a7a85;
+.chart-labels > div {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 0;
-    cursor: pointer;
 }
 
-.nav-icon { font-size: 20px; }
-.nav-label { font-size: 11px; }
+.chart-labels span {
+    color: var(--muted);
 
-.nav-item.active {
-    color: #d19bff;
+    font-size: 10px;
+
+    margin-bottom: 5px;
 }
 
-/* Вкладка "Премиум" */
+.chart-labels b {
+    color: var(--text);
+
+    font-size: 14px;
+}
+
+.chart-center-label {
+    text-align: center;
+}
+
+.chart-goal-label {
+    text-align: right;
+}
+
+.chart-goal-label b {
+    color: var(--accent-light);
+}
+
+
+/* ========================================
+   PREMIUM
+======================================== */
 
 .plan-card {
-    border: 1px solid #2a2a32;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-    background-color: #1c1c22;
+    position: relative;
+
+    margin-top: 18px;
+
+    padding: 23px;
+
+    border-radius: 24px;
+
+    background: var(--surface);
+
+    border:
+        1px solid
+        var(--border);
+
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        border 0.25s ease;
+}
+
+.plan-card:hover {
+    transform: translateY(-3px);
 }
 
 .plan-card.premium {
-    border-color: #a259ff;
-    background: linear-gradient(135deg, #241a33, #1c1c22);
+    border-color:
+        rgba(184, 140, 255, 0.22);
+}
+
+.plan-card.premium::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--accent),
+            transparent
+        );
 }
 
 .plan-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 12px;
+    color: var(--text);
+
+    font-size: 20px;
+
+    font-weight: 750;
+}
+
+.plan-price {
+    margin-top: 10px;
+
+    color: var(--accent-light);
+
+    font-size: 27px;
+
+    font-weight: 800;
 }
 
 .plan-list {
-    margin: 0 0 16px 0;
-    padding-left: 20px;
-    color: #d9d9e0;
-    font-size: 14px;
-    line-height: 1.8;
+    list-style: none;
+
+    margin-top: 18px;
 }
 
-/* Вкладка "Профиль" */
+.plan-list li {
+    position: relative;
 
-.text-input {
-    width: 100%;
-    background-color: #1c1c22;
-    border: 1px solid #2a2a32;
-    border-radius: 12px;
-    padding: 14px;
-    color: #fff;
-    font-size: 15px;
-    margin-top: 10px;
+    padding-left: 22px;
+
+    margin-bottom: 10px;
+
+    color: var(--muted);
+
+    font-size: 13px;
+
+    line-height: 1.4;
 }
 
-.dev-toggle-card {
-    border: 1px dashed #444;
-    border-radius: 14px;
-    padding: 16px;
-    margin-top: 12px;
-}
+.plan-list li::before {
+    content: "✓";
 
-.dev-toggle-label {
-    font-size: 14px;
-    color: #d9d9e0;
-}
+    position: absolute;
 
-.dev-toggle-note {
-    color: #7a7a85;
-    font-size: 12px;
-    margin: 10px 0 0 0;
-}
+    left: 0;
 
-/* ---------- V2: этапы и фазы программы ---------- */
+    color: var(--green);
 
-.workout-meta {
-    background: #16161c;
-    border: 1px solid #2a2a32;
-    border-radius: 14px;
-    padding: 12px 14px;
-    margin-bottom: 14px;
-}
-
-.workout-meta-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-}
-
-.phase-chip,
-.stage-chip {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 10px;
-    padding: 5px 9px;
-    font-size: 11px;
     font-weight: 700;
 }
 
-.phase-chip {
-    background: #2a2035;
-    color: #d19bff;
+.plan-card .upgrade-btn {
+    margin-top: 18px;
 }
 
-.stage-chip {
-    background: #24242c;
-    color: #9a9aa5;
-}
+.plan-unlocked {
+    margin-top: 20px;
 
-.phase-note {
-    color: #9a9aa5;
-    font-size: 12px;
-    line-height: 1.45;
-}
+    padding: 14px;
 
-.set-type-badge.top {
-    color: #ffcf8a;
-    background-color: #3a2a18;
-}
+    border-radius: 14px;
 
-.set-type-badge.backoff {
-    color: #c9b5e8;
-    background-color: #292234;
-}
+    color: var(--green);
 
-.set-type-badge.deload {
-    color: #8fc6a0;
-    background-color: #1d2b22;
-}
+    text-align: center;
 
-.path-node-phase {
-    margin-top: 2px;
-    font-size: 9px;
-    color: #777783;
-    white-space: nowrap;
-}
-
-.path-node.current .path-node-phase {
-    color: #d19bff;
-}
-
-.path-node.completed .path-node-phase {
-    color: #6fe08c;
-}
-
-/* ==========================================================
-   V3 SAFE UI PATCH
-   Только визуальный слой. Логика тренировок не изменяется.
-   ========================================================== */
-
-/* На десктопе основной экран использует доступную ширину,
-   а онбординг и внутренние карточки остаются компактными. */
-@media (min-width: 900px) {
-    .screen-inner.main-screen {
-        max-width: 1080px;
-        padding-left: 32px;
-        padding-right: 32px;
-    }
-
-    .bottom-nav {
-        max-width: 1080px;
-    }
-}
-
-/* Лёгкая глубина фона — без новых элементов и без нагрузки на JS. */
-#app:has(.path-container) {
     background:
-        radial-gradient(circle at 50% 22%, rgba(110, 55, 190, .10), transparent 34%),
-        radial-gradient(circle at 50% 78%, rgba(60, 40, 120, .07), transparent 38%),
-        #0d0d12;
+        rgba(98, 215, 162, 0.08);
+
+    font-size: 14px;
+
+    font-weight: 650;
 }
 
-/* Путь теперь занимает всю доступную ширину. */
-.path-container {
+.premium-active {
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 17px;
+
+    border-radius: 16px;
+
+    text-align: center;
+
+    color: var(--green);
+
+    background:
+        rgba(98, 215, 162, 0.08);
+
+    border:
+        1px solid
+        rgba(98, 215, 162, 0.15);
+}
+
+
+/* ========================================
+   ОКНО ОПЛАТЫ
+======================================== */
+
+.payment-modal {
+    position: fixed;
+
+    z-index: 1000;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(0, 0, 0, 0.72);
+
+    backdrop-filter:
+        blur(8px);
+
+    animation:
+        modalAppear
+        0.25s ease;
+}
+
+@keyframes modalAppear {
+
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+}
+
+.payment-box {
+    position: relative;
+
+    width: 100%;
+    max-width: 430px;
+
+    padding: 32px;
+
+    border-radius: 28px;
+
+    background: #181924;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.1);
+
+    box-shadow:
+        0 30px 80px
+        rgba(0, 0, 0, 0.5);
+
+    animation:
+        modalBoxAppear
+        0.3s ease;
+}
+
+@keyframes modalBoxAppear {
+
+    from {
+        opacity: 0;
+        transform:
+            scale(0.94)
+            translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform:
+            scale(1)
+            translateY(0);
+    }
+
+}
+
+.payment-close {
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    color: var(--muted);
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    font-size: 23px;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.payment-close:hover {
+    color: white;
+
+    background:
+        rgba(255, 255, 255, 0.12);
+}
+
+.payment-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 60px;
+    height: 60px;
+
+    margin-bottom: 20px;
+
+    border-radius: 20px;
+
+    background:
+        rgba(184, 140, 255, 0.12);
+
+    font-size: 27px;
+}
+
+.payment-box h2 {
+    font-size: 25px;
+}
+
+.payment-price {
+    margin:
+        25px
+        0;
+
+    color: var(--accent-light);
+
+    font-size: 38px;
+
+    font-weight: 800;
+}
+
+.paypal-not-connected {
+    padding: 20px;
+
+    border-radius: 16px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    background:
+        rgba(255, 255, 255, 0.04);
+}
+
+.paypal-not-connected strong {
+    color: var(--text);
+}
+
+.paypal-not-connected p {
+    margin-top: 8px;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
+   НИЖНЯЯ НАВИГАЦИЯ
+======================================== */
+
+.bottom-nav {
+    position: fixed;
+
+    z-index: 100;
+
+    left: 50%;
+    bottom: 0;
+
+    transform:
+        translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
     width: 100%;
     max-width: 720px;
-    margin: 8px auto 48px;
-}
 
-.path-svg {
-    overflow: visible;
-}
+    height: 82px;
 
-/* Более объёмные станции, но без тяжёлого 3D-движка. */
-.path-node-inner {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    position: relative;
+    padding:
+        8px
+        25px
+        12px;
+
     background:
-        radial-gradient(circle at 32% 25%, rgba(255,255,255,.25), transparent 18%),
-        radial-gradient(circle at 50% 45%, #30213f 0%, #1b1823 58%, #111117 100%);
-    border: 2px solid #35313e;
-    box-shadow:
-        inset 0 5px 10px rgba(255,255,255,.08),
-        inset 0 -10px 14px rgba(0,0,0,.55),
-        0 8px 0 #08080b,
-        0 12px 22px rgba(0,0,0,.42);
-    transition: transform .18s ease, box-shadow .18s ease;
+        rgba(21, 22, 32, 0.94);
+
+    border-top:
+        1px solid
+        var(--border);
+
+    backdrop-filter:
+        blur(18px);
 }
 
-.path-node:hover .path-node-inner,
-.path-node:focus .path-node-inner {
-    transform: translateY(-2px) scale(1.035);
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 5px;
+
+    min-width: 70px;
+
+    border: none;
+
+    background: transparent;
+
+    color: var(--muted);
+
+    cursor: pointer;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
-.path-node.current .path-node-inner {
-    background:
-        radial-gradient(circle at 32% 23%, rgba(255,255,255,.30), transparent 19%),
-        radial-gradient(circle at 50% 46%, #9b55ff 0%, #622bb4 52%, #291445 100%);
-    border-color: #c994ff;
-    box-shadow:
-        inset 0 5px 10px rgba(255,255,255,.18),
-        inset 0 -12px 16px rgba(30,0,60,.45),
-        0 8px 0 #241039,
-        0 0 0 5px rgba(162,89,255,.12),
-        0 12px 30px rgba(120,55,220,.28);
+.nav-item:hover {
+    transform:
+        translateY(-2px);
 }
 
-.path-node.completed .path-node-inner {
-    background:
-        radial-gradient(circle at 32% 23%, rgba(255,255,255,.18), transparent 19%),
-        radial-gradient(circle at 50% 46%, #245033 0%, #173020 55%, #0f1d15 100%);
-    border-color: #4bbd72;
-    box-shadow:
-        inset 0 5px 10px rgba(255,255,255,.08),
-        inset 0 -10px 14px rgba(0,0,0,.48),
-        0 8px 0 #09120d,
-        0 8px 22px rgba(45,150,80,.12);
+.nav-item.active {
+    color: var(--accent-light);
 }
 
-.path-node.locked .path-node-inner {
-    background:
-        radial-gradient(circle at 32% 23%, rgba(255,255,255,.06), transparent 19%),
-        linear-gradient(145deg, #222127, #141419);
-    border-color: #2b2a31;
-    box-shadow:
-        inset 0 4px 8px rgba(255,255,255,.03),
-        0 7px 0 #09090b;
+.nav-icon {
+    font-size: 20px;
 }
 
-.path-node-weight {
-    margin-top: 9px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #aaa7b2;
+.nav-label {
+    font-size: 11px;
 }
 
-.path-node-phase {
-    margin-top: 3px;
-    font-size: 10px;
-    color: #77737f;
-}
 
-.week-label {
-    font-size: 13px;
-    color: #aaa6b2;
-    opacity: .9;
-}
+/* ========================================
+   АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНА
+======================================== */
 
-/* На маленьких экранах не увеличиваем станцию слишком сильно. */
-@media (max-width: 520px) {
-    .path-container {
-        max-width: 430px;
+@media (
+    max-width: 600px
+) {
+
+    .screen-inner {
+        padding:
+            28px
+            18px
+            110px;
     }
 
-    .path-node-inner {
-        width: 58px;
-        height: 58px;
+    h2 {
+        font-size: 27px;
     }
 
-    .path-node-weight {
-        font-size: 11px;
+    .option-card {
+        padding: 15px;
     }
 
-    .path-node-phase {
-        font-size: 9px;
+    .option-icon {
+        width: 44px;
+        height: 44px;
     }
+
+    .current-goal-row {
+        gap: 12px;
+
+        padding: 16px;
+    }
+
+    .weight-stat strong {
+        font-size: 17px;
+    }
+
+    .path-node-wrapper {
+        gap: 12px;
+    }
+
+    .path-node-content {
+        padding-right: 4px;
+    }
+
+    .path-node-title {
+        font-size: 14px;
+    }
+
+    .path-node-subtitle {
+        font-size: 12px;
+    }
+
+    .set-row {
+        gap: 10px;
+
+        padding: 12px;
+    }
+
+    .set-type {
+        display: none;
+    }
+
+    .workout-header-row {
+        gap: 8px;
+    }
+
+    .max-badge {
+        font-size: 10px;
+    }
+
+    .payment-box {
+        padding: 27px 20px;
+    }
+
 }
 
-/* На очень узких экранах чуть уменьшаем амплитуду визуально,
-   не меняя координаты JS. */
-@media (max-width: 360px) {
-    .path-container {
+
+/* ========================================
+   БОЛЬШИЕ ЭКРАНЫ
+======================================== */
+
+@media (
+    min-width: 900px
+) {
+
+    #app {
         max-width: 100%;
     }
 
-    .path-node-inner {
-        width: 54px;
-        height: 54px;
-        font-size: 17px;
+    .screen-inner {
+        max-width: 760px;
     }
+
 }
