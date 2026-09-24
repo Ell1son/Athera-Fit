@@ -293,7 +293,7 @@ function getAddModalHtml() {
         </div>`;
 }
 
-function openAddModal(item) { pendingItem = item; renderApp(); document.getElementById("gramInput")?.focus(); }
+function openAddModal(item) { pendingItem = item; renderApp(); }
 function closeAddModal() { pendingItem = null; renderApp(); }
 
 function confirmAdd() {
