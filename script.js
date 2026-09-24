@@ -120,9 +120,12 @@ function renderApp() {
         ${getBottomNavHtml()}
         ${getAddModalHtml()}
         ${getPremiumModalHtml()}
+        ${getScannerModalHtml()}
+        ${getScannedProductModalHtml()}
     `;
     attachDiaryEvents();
     attachModalEvents();
+    if (scannerOpen) startScanner();
 }
 
 function getBottomNavHtml() {
@@ -185,10 +188,10 @@ function getDiaryHtml() {
         </div>
 
         <div class="premium-row">
-            <div class="premium-card" onclick="${isPremium() ? "alert('Скан штрихкода: наведи камеру (реализуется в боевом Mini App)')" : "openPremiumModal()"}">
+            <div class="premium-card" onclick="${isPremium() ? "openBarcodeScanner()" : "openPremiumModal()"}">
                 ${!isPremium() ? '<span class="pc-badge">Premium</span>' : ""}
                 <div class="pc-title">📷 Скан штрихкода</div>
-                <div class="pc-sub">${isPremium() ? "Доступно" : "Наведи камеру — найдём сам"}</div>
+                <div class="pc-sub">${isPremium() ? "Нажми и наведи камеру" : "Наведи камеру — найдём сам"}</div>
             </div>
             <div class="premium-card" onclick="${isPremium() ? "" : "openPremiumModal()"}">
                 ${!isPremium() ? '<span class="pc-badge">Premium</span>' : ""}
@@ -369,6 +372,9 @@ function attachModalEvents() {
     document.getElementById("premiumOverlay")?.addEventListener("click", e => {
         if (e.target.id === "premiumOverlay") closePremiumModal();
     });
+    document.getElementById("scannedOverlay")?.addEventListener("click", e => {
+        if (e.target.id === "scannedOverlay") closeScannedModal();
+    });
 }
 
 // ========================================
@@ -394,6 +400,158 @@ function resetProgress() {
     if (!confirm("Удалить все записи за сегодня?")) return;
     state.entries = [];
     saveEntries();
+    renderApp();
+}
+
+// ========================================
+// СКАНЕР ШТРИХКОДА (только Premium)
+// ========================================
+
+let scannerOpen = false;
+let scannedProduct = null;   // данные продукта с Open Food Facts
+let scanStatus = "Наведи камеру на штрихкод";
+let scanError = "";
+let html5QrInstance = null;
+
+function openBarcodeScanner() {
+    scannerOpen = true;
+    scanStatus = "Наведи камеру на штрихкод";
+    scanError = "";
+    renderApp();
+}
+
+function closeScanner() {
+    scannerOpen = false;
+    if (html5QrInstance) {
+        html5QrInstance.stop().catch(() => {});
+        html5QrInstance = null;
+    }
+    renderApp();
+}
+
+function getScannerModalHtml() {
+    return `
+        <div class="modal-overlay ${scannerOpen ? "open" : ""}" id="scannerOverlay">
+            <div class="modal">
+                <h3>Скан штрихкода</h3>
+                <div id="reader"></div>
+                ${scanError ? `<div class="scan-error">${scanError}</div>` : `<div class="scan-status">${scanStatus}</div>`}
+                <div class="modal-actions">
+                    <button class="btn btn-cancel" onclick="closeScanner()">Закрыть</button>
+                </div>
+            </div>
+        </div>`;
+}
+
+function startScanner() {
+    // библиотека html5-qrcode должна быть подключена в index.html
+    if (typeof Html5Qrcode === "undefined") {
+        scanError = "Библиотека сканера не загрузилась. Проверь подключение html5-qrcode.js";
+        renderApp();
+        return;
+    }
+    html5QrInstance = new Html5Qrcode("reader");
+    html5QrInstance.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 240, height: 140 } },
+        (decodedText) => {
+            // штрихкод найден — останавливаем камеру и ищем продукт
+            html5QrInstance.stop().catch(() => {});
+            html5QrInstance = null;
+            scannerOpen = false;
+            lookupBarcode(decodedText);
+        },
+        () => { /* кадр без штрихкода — молча пропускаем */ }
+    ).catch(err => {
+        scanError = "Нет доступа к камере. Разреши доступ в настройках браузера.";
+        console.error(err);
+        renderApp();
+    });
+}
+
+async function lookupBarcode(code) {
+    scanStatus = "Ищу продукт…";
+    renderApp();
+    try {
+        const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json`);
+        const data = await res.json();
+
+        if (data.status !== 1 || !data.product) {
+            alert("Продукт не найден в базе Open Food Facts по этому штрихкоду.");
+            return;
+        }
+
+        const p = data.product;
+        const n = p.nutriments || {};
+
+        scannedProduct = {
+            name: p.product_name_ru || p.product_name || "Без названия",
+            kcal: n["energy-kcal_100g"] ?? 0,
+            p: n["proteins_100g"] ?? 0,
+            f: n["fat_100g"] ?? 0,
+            c: n["carbohydrates_100g"] ?? 0,
+            fiber: n["fiber_100g"],
+            sugar: n["sugars_100g"],
+            sodium: n["sodium_100g"],
+            satFat: n["saturated-fat_100g"],
+            salt: n["salt_100g"]
+        };
+
+        renderApp();
+    } catch (e) {
+        console.error(e);
+        alert("Не удалось связаться с Open Food Facts. Проверь интернет-соединение.");
+    }
+}
+
+function getScannedProductModalHtml() {
+    if (!scannedProduct) return "";
+    const sp = scannedProduct;
+
+    const microRows = [
+        ["Клетчатка", sp.fiber, "г"],
+        ["Сахар", sp.sugar, "г"],
+        ["Насыщенные жиры", sp.satFat, "г"],
+        ["Соль", sp.salt, "г"],
+        ["Натрий", sp.sodium, "г"]
+    ].filter(row => row[1] !== undefined && row[1] !== null);
+
+    return `
+        <div class="modal-overlay open" id="scannedOverlay">
+            <div class="modal">
+                <h3>${sp.name}</h3>
+                <div class="sub">${Math.round(sp.kcal)} ккал · Б${sp.p} Ж${sp.f} У${sp.c} на 100г</div>
+
+                ${microRows.length ? `
+                    <div class="micro-list">
+                        ${microRows.map(([label, val, unit]) => `
+                            <div class="micro-row"><span>${label}</span><span>${val}${unit}/100г</span></div>
+                        `).join("")}
+                    </div>` : `<p class="subtitle">Микроэлементы для этого продукта не указаны производителем</p>`}
+
+                <input type="text" inputmode="numeric" id="scanGramInput" placeholder="Граммы" value="100">
+                <div class="modal-actions">
+                    <button class="btn btn-cancel" onclick="closeScannedModal()">Отмена</button>
+                    <button class="btn btn-add" onclick="confirmAddScanned()">Добавить</button>
+                </div>
+            </div>
+        </div>`;
+}
+
+function closeScannedModal() { scannedProduct = null; renderApp(); }
+
+function confirmAddScanned() {
+    const grams = Number(document.getElementById("scanGramInput").value) || 0;
+    if (grams <= 0 || !scannedProduct) return;
+    const factor = grams / 100;
+    const sp = scannedProduct;
+    state.entries.push({
+        name: sp.name, grams,
+        kcal: sp.kcal * factor, p: sp.p * factor, f: sp.f * factor, c: sp.c * factor,
+        id: Date.now()
+    });
+    saveEntries();
+    scannedProduct = null;
     renderApp();
 }
 

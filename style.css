@@ -152,3 +152,14 @@ input:focus { outline: none; border-color: var(--accent); }
     .screen-inner { padding: 24px 16px 30px; }
     h2 { font-size: 22px; }
 }
+
+/* ---------- Сканер штрихкода ---------- */
+#reader { width: 100%; border-radius: 14px; overflow: hidden; background: #000; margin-bottom: 14px; }
+.scan-status { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+.scan-error { text-align: center; color: var(--red); font-size: 13px; margin-bottom: 10px; }
+
+/* ---------- Микроэлементы ---------- */
+.micro-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+.micro-row { display: flex; justify-content: space-between; padding: 9px 12px; background: rgba(255,255,255,.04); border-radius: 10px; font-size: 13px; }
+.micro-row span:first-child { color: var(--muted); }
+.micro-row span:last-child { font-weight: 600; }
