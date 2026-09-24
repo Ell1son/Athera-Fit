@@ -5,10 +5,14 @@
 const STORAGE_KEY = "kbjuAppStateV1";
 
 const GOAL_PRESETS = {
-    cut:      { kcal: 1600, split: [0.35, 0.25, 0.40], label: "Похудение" },
-    maintain: { kcal: 2000, split: [0.25, 0.30, 0.45], label: "Поддержание" },
-    bulk:     { kcal: 2600, split: [0.25, 0.25, 0.50], label: "Набор" }
+    cut:      { split: [0.35, 0.25, 0.40], label: "Похудение" },
+    maintain: { split: [0.25, 0.30, 0.45], label: "Поддержание" },
+    bulk:     { split: [0.25, 0.25, 0.50], label: "Набор" }
 };
+
+const ACTIVITY_MULTIPLIER = { sedentary: 1.2, light: 1.3, moderate: 1.45, active: 1.6 };
+const WORKTYPE_MET = { cardio: 8, strength: 5, mixed: 6.5, light: 3 };
+const PACE_WEEKLY_KG = { slow: 0.25, medium: 0.5, fast: 0.75 };
 
 // база продуктов: [название, ккал, белки, жиры, углеводы] на 100г
 const DB = [
@@ -58,9 +62,26 @@ const isPremium = () => localStorage.getItem("kbju_premium") === "1";
 
 const todayKey = new Date().toISOString().slice(0, 10);
 
+function readNum(key, fallback) {
+    const raw = localStorage.getItem(key);
+    if (raw === null || raw === "") return fallback;
+    const n = Number(raw);
+    return Number.isNaN(n) ? fallback : n;
+}
+
 let state = {
+    gender: localStorage.getItem("kbju_gender") || "male",
+    age: readNum("kbju_age", null),
+    height: readNum("kbju_height", null),
+    weight: readNum("kbju_weight", null),
+    steps: readNum("kbju_steps", null),
+    activity: localStorage.getItem("kbju_activity") || null,
+    workouts: readNum("kbju_workouts", null),
+    duration: readNum("kbju_duration", 20),
+    worktype: localStorage.getItem("kbju_worktype") || "light",
     goalType: localStorage.getItem("kbju_goal_type") || "maintain",
-    goal: Number(localStorage.getItem("kbju_goal")) || 2000,
+    pace: localStorage.getItem("kbju_pace") || "medium",
+    goal: readNum("kbju_goal", 2000),
     entries: JSON.parse(localStorage.getItem("kbju_entries") || "null") || []
 };
 if (localStorage.getItem("kbju_day") !== todayKey) {
@@ -68,6 +89,7 @@ if (localStorage.getItem("kbju_day") !== todayKey) {
     localStorage.setItem("kbju_day", todayKey);
 }
 
+let appState = localStorage.getItem("kbju_onboarded") === "1" ? "main" : "onboarding";
 let activeTab = "diary";
 let pendingItem = null;
 
@@ -78,8 +100,48 @@ function saveEntries() {
 }
 
 // ========================================
-// РАСЧЁТЫ
+// РАСЧЁТЫ КАЛОРИЙНОСТИ (Миффлин-Сан Жеор + активность)
 // ========================================
+
+function calcBMR(s) {
+    const base = 10 * (s.weight || 70) + 6.25 * (s.height || 170) - 5 * (s.age || 25);
+    return s.gender === "female" ? base - 161 : base + 5;
+}
+
+function calcStepsKcal(s) {
+    const extra = Math.max(0, (s.steps || 0) - 3000);
+    return extra * (s.weight || 70) * 0.00045;
+}
+
+function calcExerciseKcal(s) {
+    const workouts = s.workouts || 0;
+    if (!workouts) return 0;
+    const duration = s.duration || 30;
+    const met = WORKTYPE_MET[s.worktype] || 4;
+    const kcalPerMin = (met * 3.5 * (s.weight || 70)) / 200;
+    return (workouts * duration * kcalPerMin) / 7;
+}
+
+function calcTDEE(s) {
+    const bmr = calcBMR(s);
+    const multiplier = ACTIVITY_MULTIPLIER[s.activity] || 1.2;
+    return bmr * multiplier + calcStepsKcal(s) + calcExerciseKcal(s);
+}
+
+function calcPaceAdjustment(pace) {
+    const weeklyKg = PACE_WEEKLY_KG[pace] || 0.5;
+    return Math.round((weeklyKg * 7700) / 7);
+}
+
+function calcGoalKcal(s) {
+    const tdee = calcTDEE(s);
+    const bmr = calcBMR(s);
+    let goal = tdee;
+    if (s.goalType === "cut") goal = tdee - calcPaceAdjustment(s.pace);
+    if (s.goalType === "bulk") goal = tdee + calcPaceAdjustment(s.pace);
+    goal = Math.max(bmr * 1.05, goal);
+    return Math.round(goal / 10) * 10;
+}
 
 function getTotals() {
     return state.entries.reduce((a, e) => ({
@@ -108,6 +170,13 @@ function searchDB(q) {
 
 function renderApp() {
     const app = document.getElementById("app");
+
+    if (appState !== "main") {
+        app.innerHTML = getOnboardingHtml();
+        attachOnboardingEvents();
+        return;
+    }
+
     let content = "";
     if (activeTab === "diary") content = getDiaryHtml();
     if (activeTab === "premium") content = getPremiumHtml();
@@ -143,6 +212,281 @@ function getBottomNavHtml() {
 
 function switchTab(tab) {
     activeTab = tab;
+    renderApp();
+}
+
+// ========================================
+// ОПРОС (ОНБОРДИНГ)
+// ========================================
+
+const ONBOARDING_STEPS = [
+    {
+        key: "gender", type: "select",
+        title: "Какой у тебя пол?",
+        subtitle: "Нужно для точного расчёта нормы калорий",
+        options: [
+            { value: "male", label: "Мужской" },
+            { value: "female", label: "Женский" }
+        ]
+    },
+    {
+        key: "age", type: "number",
+        title: "Сколько тебе лет?",
+        placeholder: "Возраст", unit: "лет"
+    },
+    {
+        key: "height", type: "number",
+        title: "Какой у тебя рост?",
+        placeholder: "Рост", unit: "см"
+    },
+    {
+        key: "weight", type: "number",
+        title: "Какой у тебя вес?",
+        placeholder: "Вес", unit: "кг"
+    },
+    {
+        key: "steps", type: "select",
+        title: "Сколько шагов ты проходишь в среднем за день?",
+        options: [
+            { value: 2000, label: "Меньше 4 000" },
+            { value: 6000, label: "4 000 – 8 000" },
+            { value: 10000, label: "8 000 – 12 000" },
+            { value: 14000, label: "Больше 12 000" }
+        ]
+    },
+    {
+        key: "activity", type: "select",
+        title: "Какая у тебя повседневная активность?",
+        subtitle: "Работа или учёба, без учёта тренировок",
+        options: [
+            { value: "sedentary", label: "Сидячая", sub: "Офис, учёба за столом" },
+            { value: "light", label: "Лёгкая", sub: "Иногда на ногах" },
+            { value: "moderate", label: "Средняя", sub: "Много на ногах в течение дня" },
+            { value: "active", label: "Высокая", sub: "Физический труд" }
+        ]
+    },
+    {
+        key: "workouts", type: "select",
+        title: "Сколько тренировок в неделю?",
+        options: [
+            { value: 0, label: "Не тренируюсь" },
+            { value: 2, label: "1–2 раза" },
+            { value: 4, label: "3–4 раза" },
+            { value: 6, label: "5 и более" }
+        ]
+    },
+    {
+        key: "duration", type: "select",
+        title: "Сколько длится тренировка?",
+        skipIf: d => d.workouts === 0,
+        options: [
+            { value: 20, label: "До 30 минут" },
+            { value: 37, label: "30 – 45 минут" },
+            { value: 52, label: "45 – 60 минут" },
+            { value: 70, label: "Больше часа" }
+        ]
+    },
+    {
+        key: "worktype", type: "select",
+        title: "Какой у тебя тип тренировок?",
+        skipIf: d => d.workouts === 0,
+        options: [
+            { value: "cardio", label: "Кардио" },
+            { value: "strength", label: "Силовые" },
+            { value: "mixed", label: "Смешанные" },
+            { value: "light", label: "Лёгкие", sub: "Йога, растяжка, пилатес" }
+        ]
+    },
+    {
+        key: "goalType", type: "select",
+        title: "Какая у тебя цель?",
+        subtitle: "Норма калорий рассчитается автоматически",
+        options: [
+            { value: "cut", label: "Похудение" },
+            { value: "maintain", label: "Поддержание" },
+            { value: "bulk", label: "Набор массы" }
+        ],
+        preview: (value, draft) => {
+            if (value === "maintain") {
+                return `≈ ${Math.round(calcTDEE(draft) / 10) * 10} ккал`;
+            }
+            return `≈ ${calcGoalKcal({ ...draft, goalType: value, pace: "medium" })} ккал`;
+        }
+    },
+    {
+        key: "pace", type: "select",
+        title: "Какой темп тебе нужен?",
+        skipIf: d => d.goalType === "maintain",
+        options: [
+            { value: "slow", label: "Плавный", sub: "≈ 0.25 кг в неделю" },
+            { value: "medium", label: "Средний", sub: "≈ 0.5 кг в неделю" },
+            { value: "fast", label: "Быстрый", sub: "≈ 0.75 кг в неделю" }
+        ],
+        preview: (value, draft) => `≈ ${calcGoalKcal({ ...draft, pace: value })} ккал`
+    }
+];
+
+function makeOnboardingDraft() {
+    return {
+        gender: state.gender || "male",
+        age: state.age || null,
+        height: state.height || null,
+        weight: state.weight || null,
+        steps: state.steps || null,
+        activity: state.activity || null,
+        workouts: state.workouts ?? null,
+        duration: state.duration || 20,
+        worktype: state.worktype || "light",
+        goalType: state.goalType || null,
+        pace: state.pace || "medium"
+    };
+}
+
+let onboardingDraft = makeOnboardingDraft();
+let onboardingStepIndex = 0;
+
+function getVisibleSteps(draft) {
+    return ONBOARDING_STEPS.filter(st => !st.skipIf || !st.skipIf(draft));
+}
+
+function getOnboardingHtml() {
+    const steps = getVisibleSteps(onboardingDraft);
+    const step = steps[Math.min(onboardingStepIndex, steps.length - 1)];
+    const total = steps.length;
+    const pct = Math.min(100, Math.round((onboardingStepIndex / total) * 100));
+
+    let body;
+    if (step.type === "number") {
+        const val = onboardingDraft[step.key] ?? "";
+        body = `
+            <h2>${step.title}</h2>
+            ${step.subtitle ? `<p class="subtitle">${step.subtitle}</p>` : ""}
+            <div class="onb-unit-wrap">
+                <input type="number" inputmode="decimal" id="onbInput" placeholder="${step.placeholder}" value="${val}">
+                ${step.unit ? `<span class="onb-unit-suffix">${step.unit}</span>` : ""}
+            </div>
+            <div class="onb-actions">
+                ${onboardingStepIndex > 0 ? `<button class="btn-back" onclick="onboardingBack()">←</button>` : ""}
+                <button class="btn btn-add btn-next" onclick="onboardingSubmitNumber()">Далее →</button>
+            </div>`;
+    } else {
+        const options = step.options.map(opt => {
+            const selected = onboardingDraft[step.key] === opt.value;
+            const preview = step.preview ? step.preview(opt.value, onboardingDraft) : null;
+            return `
+                <button class="onb-option ${selected ? "selected" : ""}" data-value="${opt.value}" data-numeric="${typeof opt.value === "number" ? "1" : "0"}">
+                    <span class="onb-option-text">
+                        <span class="onb-option-label">${opt.label}</span>
+                        ${opt.sub ? `<span class="onb-option-sub">${opt.sub}</span>` : ""}
+                    </span>
+                    <span class="onb-option-right">
+                        ${preview ? `<span class="onb-option-preview">${preview}</span>` : ""}
+                        <span class="onb-option-check"></span>
+                    </span>
+                </button>`;
+        }).join("");
+        body = `
+            <h2>${step.title}</h2>
+            ${step.subtitle ? `<p class="subtitle">${step.subtitle}</p>` : ""}
+            <div class="onb-options">${options}</div>
+            <div class="onb-actions">
+                ${onboardingStepIndex > 0 ? `<button class="btn-back" onclick="onboardingBack()">←</button>` : ""}
+            </div>`;
+    }
+
+    return `
+        <div class="onb-shell">
+            <div class="onb-top">
+                <div class="onb-progress-track"><div class="onb-progress-fill" style="width:${pct}%"></div></div>
+                <div class="onb-step-count">Шаг ${onboardingStepIndex + 1} из ${total}</div>
+            </div>
+            <div class="onb-body page-enter">${body}</div>
+        </div>`;
+}
+
+function attachOnboardingEvents() {
+    document.querySelectorAll(".onb-option").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const raw = btn.dataset.value;
+            const val = btn.dataset.numeric === "1" ? Number(raw) : raw;
+            onboardingSelect(val);
+        });
+    });
+    const onbInput = document.getElementById("onbInput");
+    if (onbInput) {
+        onbInput.addEventListener("keydown", e => {
+            if (e.key === "Enter") onboardingSubmitNumber();
+        });
+    }
+}
+
+function onboardingSubmitNumber() {
+    const steps = getVisibleSteps(onboardingDraft);
+    const step = steps[onboardingStepIndex];
+    const val = Number(document.getElementById("onbInput").value);
+    if (!val || val <= 0) { alert("Заполни поле, чтобы продолжить"); return; }
+    onboardingDraft[step.key] = val;
+    onboardingNext();
+}
+
+function onboardingSelect(value) {
+    const steps = getVisibleSteps(onboardingDraft);
+    const step = steps[onboardingStepIndex];
+    onboardingDraft[step.key] = value;
+    onboardingNext();
+}
+
+function onboardingNext() {
+    onboardingStepIndex++;
+    const steps = getVisibleSteps(onboardingDraft);
+    if (onboardingStepIndex >= steps.length) { finishOnboarding(); return; }
+    renderApp();
+}
+
+function onboardingBack() {
+    if (onboardingStepIndex === 0) return;
+    onboardingStepIndex--;
+    renderApp();
+}
+
+function finishOnboarding() {
+    const d = onboardingDraft;
+    state.gender = d.gender;
+    state.age = d.age;
+    state.height = d.height;
+    state.weight = d.weight;
+    state.steps = d.steps;
+    state.activity = d.activity;
+    state.workouts = d.workouts;
+    state.duration = d.duration;
+    state.worktype = d.worktype;
+    state.goalType = d.goalType;
+    state.pace = d.pace;
+    state.goal = calcGoalKcal(state);
+
+    localStorage.setItem("kbju_gender", state.gender);
+    localStorage.setItem("kbju_age", state.age);
+    localStorage.setItem("kbju_height", state.height);
+    localStorage.setItem("kbju_weight", state.weight);
+    localStorage.setItem("kbju_steps", state.steps);
+    localStorage.setItem("kbju_activity", state.activity);
+    localStorage.setItem("kbju_workouts", state.workouts);
+    localStorage.setItem("kbju_duration", state.duration);
+    localStorage.setItem("kbju_worktype", state.worktype);
+    localStorage.setItem("kbju_goal_type", state.goalType);
+    localStorage.setItem("kbju_pace", state.pace);
+    localStorage.setItem("kbju_goal", state.goal);
+    localStorage.setItem("kbju_onboarded", "1");
+
+    appState = "main";
+    activeTab = "diary";
+    renderApp();
+}
+
+function restartOnboarding() {
+    onboardingDraft = makeOnboardingDraft();
+    onboardingStepIndex = 0;
+    appState = "onboarding";
     renderApp();
 }
 
@@ -225,7 +569,7 @@ function getLogHtml() {
 
 function setGoalType(type) {
     state.goalType = type;
-    state.goal = GOAL_PRESETS[type].kcal;
+    state.goal = calcGoalKcal(state);
     localStorage.setItem("kbju_goal_type", type);
     localStorage.setItem("kbju_goal", state.goal);
     renderApp();
@@ -381,10 +725,20 @@ function attachModalEvents() {
 // ВКЛАДКА ПРОФИЛЬ
 // ========================================
 
+const ACTIVITY_LABEL = { sedentary: "Сидячая", light: "Лёгкая", moderate: "Средняя", active: "Высокая" };
+
 function getProfileHtml() {
     return `
         <h2>Твой <span class="accent">профиль</span></h2>
-        <p class="subtitle">Цель: ${GOAL_PRESETS[state.goalType].label} · ${state.goal} ккал/день</p>
+        <p class="subtitle">${GOAL_PRESETS[state.goalType].label} · ${state.goal} ккал/день</p>
+
+        <div class="stat-grid">
+            <div class="stat-box"><div class="stat-label">Вес</div><div class="stat-value">${state.weight || "—"} кг</div></div>
+            <div class="stat-box"><div class="stat-label">Рост</div><div class="stat-value">${state.height || "—"} см</div></div>
+            <div class="stat-box"><div class="stat-label">Возраст</div><div class="stat-value">${state.age || "—"} лет</div></div>
+            <div class="stat-box"><div class="stat-label">Активность</div><div class="stat-value">${ACTIVITY_LABEL[state.activity] || "—"}</div></div>
+        </div>
+
         <div class="plan-card">
             <div class="pc-title" style="font-size:16px">Тариф</div>
             <div class="plan-price" style="color:${isPremium() ? "var(--green)" : "var(--muted)"}">${isPremium() ? "Premium" : "Бесплатный"}</div>
@@ -392,6 +746,7 @@ function getProfileHtml() {
                 ? `<div class="plan-unlocked">✓ Все функции открыты</div>`
                 : `<button class="btn btn-gold" style="width:100%" onclick="switchTab('premium')">Открыть Premium</button>`}
         </div>
+        <button class="secondary-btn" onclick="restartOnboarding()">Пройти опрос заново</button>
         <button class="secondary-btn" onclick="resetProgress()">Очистить дневник за сегодня</button>
     `;
 }
