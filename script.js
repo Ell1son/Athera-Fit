@@ -47,6 +47,55 @@ const DB = [
 ["Куриный бульон",30,3,1.5,1.5],["Протеиновый батончик",380,30,12,35]
 ];
 
+// база упражнений: [id, название, группа мышц]
+const GROUP_LABELS = {
+    chest: "Грудь", back: "Спина", legs: "Ноги",
+    shoulders: "Плечи", arms: "Руки", core: "Пресс", cardio: "Кардио"
+};
+const GROUP_ICON = {
+    chest: "🏋️", back: "🧗", legs: "🦵",
+    shoulders: "🤸", arms: "💪", core: "🔥", cardio: "🏃"
+};
+
+const EXERCISES = [
+    ["bench_press","Жим штанги лёжа","chest"],["db_bench_press","Жим гантелей лёжа","chest"],
+    ["incline_bench","Жим штанги на наклонной скамье","chest"],["incline_db_press","Жим гантелей на наклонной скамье","chest"],
+    ["db_fly","Разводка гантелей лёжа","chest"],["dips","Отжимания на брусьях","chest"],
+    ["pushups","Отжимания от пола","chest"],["cable_crossover","Кроссовер на блоках","chest"],
+    ["db_pullover","Пуловер с гантелей","chest"],["smith_bench","Жим в машине Смита","chest"],
+
+    ["deadlift","Становая тяга","back"],["barbell_row","Тяга штанги в наклоне","back"],
+    ["db_row","Тяга гантели одной рукой","back"],["pullup_wide","Подтягивания широким хватом","back"],
+    ["pullup_narrow","Подтягивания узким хватом","back"],["lat_pulldown","Тяга верхнего блока","back"],
+    ["seated_row","Тяга нижнего блока (гребля)","back"],["hyperextension","Гиперэкстензия","back"],
+    ["barbell_shrug","Шраги со штангой","back"],["t_bar_row","Тяга Т-грифа","back"],
+
+    ["barbell_squat","Приседания со штангой","legs"],["leg_press","Жим ногами","legs"],
+    ["db_lunge","Выпады с гантелями","legs"],["romanian_deadlift","Румынская тяга","legs"],
+    ["leg_extension","Разгибание ног в тренажёре","legs"],["leg_curl","Сгибание ног лёжа","legs"],
+    ["calf_raise_standing","Подъём на носки стоя","legs"],["calf_raise_seated","Подъём на носки сидя","legs"],
+    ["smith_squat","Приседания в Смите","legs"],["bulgarian_split_squat","Болгарские выпады","legs"],
+
+    ["ohp","Жим штанги стоя","shoulders"],["db_shoulder_press","Жим гантелей сидя","shoulders"],
+    ["lateral_raise","Махи гантелями в стороны","shoulders"],["bent_over_raise","Махи гантелями в наклоне","shoulders"],
+    ["upright_row","Тяга штанги к подбородку","shoulders"],["arnold_press","Жим Арнольда","shoulders"],
+    ["reverse_fly_machine","Обратные разводки в тренажёре","shoulders"],["front_raise","Подъём штанги перед собой","shoulders"],
+
+    ["barbell_curl","Подъём штанги на бицепс","arms"],["db_curl","Подъём гантелей на бицепс","arms"],
+    ["hammer_curl","Молотки с гантелями","arms"],["skull_crusher","Французский жим лёжа","arms"],
+    ["cable_pushdown","Разгибание рук на блоке","arms"],["close_grip_bench","Жим узким хватом","arms"],
+    ["concentration_curl","Концентрированный подъём на бицепс","arms"],["db_overhead_extension","Разгибание руки с гантелей из-за головы","arms"],
+
+    ["crunches","Скручивания","core"],["leg_raise_hanging","Подъём ног в висе","core"],
+    ["plank","Планка","core"],["cable_crunch","Скручивания на блоке","core"],
+    ["russian_twist","Русские скручивания","core"],["bicycle_crunch","Велосипед","core"],
+    ["knee_raise","Подъём коленей в упоре","core"],
+
+    ["treadmill","Бег на дорожке","cardio"],["bike","Велотренажёр","cardio"],
+    ["rowing_machine","Гребной тренажёр","cardio"],["jump_rope","Скакалка","cardio"],
+    ["elliptical","Эллипсоид","cardio"],["burpees","Бёрпи","cardio"]
+];
+
 // ========================================
 // СОСТОЯНИЕ
 // ========================================
@@ -68,6 +117,16 @@ function readNum(key, fallback) {
     const n = Number(raw);
     return Number.isNaN(n) ? fallback : n;
 }
+function readJSON(key, fallback) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+}
+function saveJSON(key, obj) {
+    try { localStorage.setItem(key, JSON.stringify(obj)); }
+    catch (e) { console.error("storage error", e); }
+}
 
 let state = {
     gender: localStorage.getItem("kbju_gender") || "male",
@@ -82,7 +141,10 @@ let state = {
     goalType: localStorage.getItem("kbju_goal_type") || "maintain",
     pace: localStorage.getItem("kbju_pace") || "medium",
     goal: readNum("kbju_goal", 2000),
-    entries: JSON.parse(localStorage.getItem("kbju_entries") || "null") || []
+    entries: JSON.parse(localStorage.getItem("kbju_entries") || "null") || [],
+    programs: readJSON("kbju_programs", []),
+    exerciseHistory: readJSON("kbju_exercise_history", {}),
+    exerciseIcons: readJSON("kbju_exercise_icons", {})
 };
 if (localStorage.getItem("kbju_day") !== todayKey) {
     state.entries = [];
@@ -179,6 +241,7 @@ function renderApp() {
 
     let content = "";
     if (activeTab === "diary") content = getDiaryHtml();
+    if (activeTab === "workouts") content = getWorkoutsHtml();
     if (activeTab === "premium") content = getPremiumHtml();
     if (activeTab === "profile") content = getProfileHtml();
 
@@ -194,17 +257,19 @@ function renderApp() {
     `;
     attachDiaryEvents();
     attachModalEvents();
+    attachWorkoutsEvents();
     if (scannerOpen) startScanner();
 }
 
 function getBottomNavHtml() {
     const tabs = [
         { key: "diary", icon: "🍽️", label: "Дневник" },
+        { key: "workouts", icon: "🏋️", label: "Тренировки" },
         { key: "premium", icon: "✦", label: "Premium" },
         { key: "profile", icon: "◎", label: "Профиль" }
     ];
     return `<nav class="bottom-nav">${tabs.map(t => `
-        <button class="nav-item ${activeTab === t.key ? "active" : ""}" onclick="switchTab('${t.key}')">
+        <button class="nav-item ${activeTab === t.key ? "active" : ""}" data-key="${t.key}" onclick="switchTab('${t.key}')">
             <span class="nav-icon">${t.icon}</span>
             <span class="nav-label">${t.label}</span>
         </button>`).join("")}</nav>`;
@@ -654,6 +719,380 @@ function confirmAdd() {
     pendingItem = null;
     renderApp();
 }
+
+// ========================================
+// ВКЛАДКА "ТРЕНИРОВКИ" — программы и подходы
+// ========================================
+
+let workoutsView = "list";      // "list" | "detail" | "picker"
+let activeProgramId = null;
+let workoutSearch = "";
+
+function getExerciseById(id) {
+    const row = EXERCISES.find(e => e[0] === id);
+    return row ? { id: row[0], name: row[1], group: row[2] } : null;
+}
+
+function renderExerciseIcon(ex) {
+    const customUrl = state.exerciseIcons[ex.id];
+    if (customUrl) return `<img src="${customUrl}" class="ex-icon-img" alt="">`;
+    return `<span class="ex-icon-emoji">${GROUP_ICON[ex.group]}</span>`;
+}
+
+function promptSetIcon(id, ev) {
+    if (ev) ev.stopPropagation();
+    const current = state.exerciseIcons[id] || "";
+    const url = prompt("Ссылка на картинку или GIF для упражнения (оставь пустым, чтобы убрать):", current);
+    if (url === null) return;
+    if (url.trim() === "") delete state.exerciseIcons[id];
+    else state.exerciseIcons[id] = url.trim();
+    saveJSON("kbju_exercise_icons", state.exerciseIcons);
+    renderApp();
+}
+
+function findProgram(id) { return state.programs.find(p => p.id === id); }
+
+function bestSet(sets) {
+    if (!sets || sets.length === 0) return null;
+    return sets.reduce((b, s) => (!b || s.kg > b.kg || (s.kg === b.kg && s.reps > b.reps)) ? s : b, null);
+}
+
+// сравниваем лучший подход текущей сессии с лучшим за всю предыдущую историю
+function getProgressInfo(exerciseId, currentSets) {
+    const history = state.exerciseHistory[exerciseId] || [];
+    if (history.length === 0) return { hasHistory: false, progressed: false, prevBest: null };
+    const prevBest = history.reduce((b, h) => (!b || h.best.kg > b.kg || (h.best.kg === b.kg && h.best.reps > b.reps)) ? h.best : b, null);
+    const curBest = bestSet(currentSets);
+    const progressed = curBest && prevBest && (curBest.kg > prevBest.kg || (curBest.kg === prevBest.kg && curBest.reps > prevBest.reps));
+    return { hasHistory: true, progressed, prevBest };
+}
+
+// строим компактный SVG-график прогрессии веса по сохранённым тренировкам
+function renderProgressChart(exerciseId) {
+    const history = state.exerciseHistory[exerciseId] || [];
+    if (history.length === 0) return "";
+
+    const points = history.slice(-8).map(h => h.best.kg);
+    const n = points.length;
+    const max = Math.max(...points);
+    const min = Math.min(...points);
+    const range = max - min || 1;
+    const w = 100, h = 30, pad = 3;
+    const step = n > 1 ? (w - pad * 2) / (n - 1) : 0;
+
+    const coords = points.map((v, i) => {
+        const x = n > 1 ? pad + i * step : w / 2;
+        const y = pad + (h - pad * 2) * (1 - (v - min) / range);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+
+    const dots = points.map((v, i) => {
+        const [x, y] = coords[i].split(",");
+        const isLast = i === n - 1;
+        return `<circle cx="${x}" cy="${y}" r="${isLast ? 2.6 : 1.6}" fill="${isLast ? "var(--accent)" : "var(--muted)"}" />`;
+    }).join("");
+
+    const polyline = n > 1
+        ? `<polyline points="${coords.join(" ")}" fill="none" stroke="var(--accent)" stroke-width="1.6" vector-effect="non-scaling-stroke" />`
+        : "";
+
+    return `
+        <div class="ex-chart">
+            <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+                ${polyline}
+                ${dots}
+            </svg>
+            <div class="ex-chart-labels"><span>${min}кг</span><span class="ex-chart-hint">${n} трен.</span><span>${max}кг</span></div>
+        </div>`;
+}
+
+// ---------- Экран: список программ ----------
+
+function getWorkoutsHtml() {
+    if (workoutsView === "detail") return getProgramDetailHtml();
+    if (workoutsView === "picker") return getPickerHtml();
+    return getProgramListHtml();
+}
+
+function getProgramListHtml() {
+    if (state.programs.length === 0) {
+        return `
+            <h2>Твои <span class="accent">программы</span></h2>
+            <p class="subtitle">Собери тренировки под свои дни — например «Ноги», «Спина + бицепс»</p>
+            <div class="log-empty" style="padding:34px 20px">Пока нет ни одной программы</div>
+            <button class="btn btn-add" style="width:100%;margin-top:16px" onclick="createProgram()">+ Новая программа</button>
+        `;
+    }
+
+    return `
+        <h2>Твои <span class="accent">программы</span></h2>
+        <p class="subtitle">${state.programs.length} программ${state.programs.length === 1 ? "а" : ""}</p>
+        <div class="prog-list">
+            ${state.programs.map(p => `
+                <div class="prog-card" onclick="openProgram('${p.id}')">
+                    <div class="prog-card-name">${p.name}</div>
+                    <div class="prog-card-exercises">${
+                        p.exercises.length === 0
+                            ? "Пока нет упражнений"
+                            : p.exercises.map(e => getExerciseById(e.exerciseId)?.name || "?").join(", ")
+                    }</div>
+                    <div class="prog-card-meta">${p.exercises.length} упражнени${p.exercises.length === 1 ? "е" : p.exercises.length < 5 ? "я" : "й"}</div>
+                </div>`).join("")}
+        </div>
+        <button class="btn btn-add" style="width:100%;margin-top:16px" onclick="createProgram()">+ Новая программа</button>
+    `;
+}
+
+function createProgram() {
+    const name = prompt("Название программы (например «Ноги» или «Понедельник»):");
+    if (!name || !name.trim()) return;
+    const program = { id: "p" + Date.now(), name: name.trim(), exercises: [] };
+    state.programs.push(program);
+    saveJSON("kbju_programs", state.programs);
+    activeProgramId = program.id;
+    workoutsView = "detail";
+    renderApp();
+}
+
+function openProgram(id) {
+    activeProgramId = id;
+    workoutsView = "detail";
+    renderApp();
+}
+
+function backToProgramList() {
+    commitActiveProgramInputs();
+    workoutsView = "list";
+    activeProgramId = null;
+    renderApp();
+}
+
+function renameProgram() {
+    const program = findProgram(activeProgramId);
+    if (!program) return;
+    const name = prompt("Новое название программы:", program.name);
+    if (!name || !name.trim()) return;
+    program.name = name.trim();
+    saveJSON("kbju_programs", state.programs);
+    renderApp();
+}
+
+function deleteProgram() {
+    if (!confirm("Удалить эту программу? Действие необратимо.")) return;
+    state.programs = state.programs.filter(p => p.id !== activeProgramId);
+    saveJSON("kbju_programs", state.programs);
+    workoutsView = "list";
+    activeProgramId = null;
+    renderApp();
+}
+
+// ---------- Экран: детали программы (таблица подходов) ----------
+
+// считываем текущие значения инпутов из DOM и записываем в state,
+// чтобы структурные изменения (добавление упражнения, переход назад) не стирали ввод
+function commitActiveProgramInputs() {
+    const program = findProgram(activeProgramId);
+    if (!program) return;
+    program.exercises.forEach(ex => {
+        ex.sets.forEach((set, i) => {
+            const kgEl = document.querySelector(`[data-ex="${ex.exerciseId}"][data-set="${i}"][data-field="kg"]`);
+            const repsEl = document.querySelector(`[data-ex="${ex.exerciseId}"][data-set="${i}"][data-field="reps"]`);
+            if (kgEl) set.kg = Number(kgEl.value) || 0;
+            if (repsEl) set.reps = Number(repsEl.value) || 0;
+        });
+    });
+    saveJSON("kbju_programs", state.programs);
+}
+
+function getProgramDetailHtml() {
+    const program = findProgram(activeProgramId);
+    if (!program) { workoutsView = "list"; return getProgramListHtml(); }
+
+    return `
+        <div class="detail-top">
+            <button class="back-btn" onclick="backToProgramList()">←</button>
+            <div class="detail-title">${program.name}</div>
+            <button class="icon-btn" onclick="renameProgram()">✏️</button>
+        </div>
+
+        <div class="ex-list">
+            ${program.exercises.length === 0
+                ? `<div class="log-empty" style="padding:28px 16px">Добавь первое упражнение в программу</div>`
+                : program.exercises.map(ex => getExerciseRowHtml(ex)).join("")}
+        </div>
+
+        <button class="btn btn-add" style="width:100%;margin-top:14px" onclick="openPicker()">+ Добавить упражнение</button>
+        ${program.exercises.length > 0 ? `<button class="btn btn-add" style="width:100%;margin-top:10px" onclick="saveWorkoutSession()">✓ Сохранить тренировку</button>` : ""}
+        <button class="secondary-btn" onclick="deleteProgram()">Удалить программу</button>
+    `;
+}
+
+function getExerciseRowHtml(ex) {
+    const info = getExerciseById(ex.exerciseId);
+    if (!info) return "";
+    const progress = getProgressInfo(ex.exerciseId, ex.sets);
+    const doneCount = ex.sets.filter(s => s.done).length;
+
+    return `
+        <div class="ex-card">
+            <div class="ex-card-top">
+                <button class="ex-icon-btn" onclick="promptSetIcon('${ex.exerciseId}', event)">${renderExerciseIcon(info)}</button>
+                <div class="ex-card-info">
+                    <div class="ex-card-name">${info.name}</div>
+                    <div class="ex-card-group">${GROUP_LABELS[info.group]}${doneCount > 0 ? ` · ${doneCount}/${ex.sets.length} выполнено` : ""}</div>
+                </div>
+                ${progress.hasHistory
+                    ? (progress.progressed ? `<span class="progress-badge">📈 Прогресс</span>` : `<span class="progress-badge muted">Лучшее: ${progress.prevBest.kg}×${progress.prevBest.reps}</span>`)
+                    : ""}
+                <button class="ex-remove-btn" onclick="removeExerciseFromProgram('${ex.exerciseId}')" aria-label="Убрать">✕</button>
+            </div>
+
+            ${renderProgressChart(ex.exerciseId)}
+
+            <div class="sets-table">
+                <div class="sets-row sets-head"><span>Сет</span><span>Кг</span><span>Повт.</span><span></span><span></span></div>
+                ${ex.sets.map((s, i) => `
+                    <div class="sets-row ${s.done ? "set-done" : ""}">
+                        <span class="set-num">${i + 1}</span>
+                        <input type="text" inputmode="decimal" data-ex="${ex.exerciseId}" data-set="${i}" data-field="kg" value="${s.kg || ""}">
+                        <input type="text" inputmode="numeric" data-ex="${ex.exerciseId}" data-set="${i}" data-field="reps" value="${s.reps || ""}">
+                        <button class="set-check ${s.done ? "checked" : ""}" onclick="toggleSetDone('${ex.exerciseId}', ${i})" aria-label="Отметить подход выполненным"></button>
+                        <button class="set-del-btn" onclick="removeSetRow('${ex.exerciseId}', ${i})">✕</button>
+                    </div>`).join("")}
+            </div>
+            <button class="add-set-btn" onclick="addSetRow('${ex.exerciseId}')">+ Подход</button>
+        </div>`;
+}
+
+function toggleSetDone(exerciseId, index) {
+    commitActiveProgramInputs();
+    const program = findProgram(activeProgramId);
+    const ex = program.exercises.find(e => e.exerciseId === exerciseId);
+    ex.sets[index].done = !ex.sets[index].done;
+    saveJSON("kbju_programs", state.programs);
+    renderApp();
+}
+
+function addSetRow(exerciseId) {
+    commitActiveProgramInputs();
+    const program = findProgram(activeProgramId);
+    const ex = program.exercises.find(e => e.exerciseId === exerciseId);
+    const last = ex.sets[ex.sets.length - 1];
+    ex.sets.push({ kg: last ? last.kg : 0, reps: last ? last.reps : 0, done: false });
+    saveJSON("kbju_programs", state.programs);
+    renderApp();
+}
+
+function removeSetRow(exerciseId, index) {
+    commitActiveProgramInputs();
+    const program = findProgram(activeProgramId);
+    const ex = program.exercises.find(e => e.exerciseId === exerciseId);
+    if (ex.sets.length <= 1) { alert("В упражнении должен остаться хотя бы один подход"); return; }
+    ex.sets.splice(index, 1);
+    saveJSON("kbju_programs", state.programs);
+    renderApp();
+}
+
+function removeExerciseFromProgram(exerciseId) {
+    if (!confirm("Убрать упражнение из программы?")) return;
+    commitActiveProgramInputs();
+    const program = findProgram(activeProgramId);
+    program.exercises = program.exercises.filter(e => e.exerciseId !== exerciseId);
+    saveJSON("kbju_programs", state.programs);
+    renderApp();
+}
+
+// сохранить сегодняшние значения подходов в историю — от этого считается прогресс в следующий раз
+function saveWorkoutSession() {
+    commitActiveProgramInputs();
+    const program = findProgram(activeProgramId);
+    if (!program || program.exercises.length === 0) return;
+
+    program.exercises.forEach(ex => {
+        const best = bestSet(ex.sets);
+        if (!best || best.kg <= 0) return;
+        if (!state.exerciseHistory[ex.exerciseId]) state.exerciseHistory[ex.exerciseId] = [];
+        state.exerciseHistory[ex.exerciseId].push({ date: new Date().toISOString(), best, sets: ex.sets.map(s => ({ ...s })) });
+        // после сохранения тренировки сбрасываем отметки "выполнено" для следующего раза
+        ex.sets.forEach(s => { s.done = false; });
+    });
+    saveJSON("kbju_exercise_history", state.exerciseHistory);
+    saveJSON("kbju_programs", state.programs);
+    renderApp();
+}
+
+// ---------- Экран: поиск и добавление упражнения ----------
+
+function openPicker() {
+    commitActiveProgramInputs();
+    workoutSearch = "";
+    workoutsView = "picker";
+    renderApp();
+}
+
+function closePicker() {
+    workoutsView = "detail";
+    renderApp();
+}
+
+function getPickerHtml() {
+    return `
+        <div class="detail-top">
+            <button class="back-btn" onclick="closePicker()">←</button>
+            <div class="detail-title">Добавить упражнение</div>
+            <span></span>
+        </div>
+        <input type="text" id="librarySearch" placeholder="Найти упражнение…" value="${workoutSearch}">
+        <div id="libraryResults">${renderLibraryList()}</div>
+    `;
+}
+
+function renderLibraryList() {
+    const q = workoutSearch.trim().toLowerCase();
+    const program = findProgram(activeProgramId);
+    const addedIds = program ? program.exercises.map(e => e.exerciseId) : [];
+    let html = "";
+
+    Object.keys(GROUP_LABELS).forEach(group => {
+        const items = EXERCISES.filter(([id, name, g]) => g === group && (!q || name.toLowerCase().includes(q)));
+        if (items.length === 0) return;
+        html += `<div class="section-title" style="margin:18px 0 10px">${GROUP_ICON[group]} ${GROUP_LABELS[group]}</div><div class="ex-lib-list">`;
+        items.forEach(([id, name]) => {
+            const added = addedIds.includes(id);
+            html += `
+                <div class="ex-lib-row">
+                    <span>${name}</span>
+                    <button class="ex-add-btn ${added ? "added" : ""}" onclick="${added ? "" : `addExerciseToProgram('${id}')`}">
+                        ${added ? "✓ Добавлено" : "+ Добавить"}
+                    </button>
+                </div>`;
+        });
+        html += `</div>`;
+    });
+
+    return html || `<div class="empty-note">Ничего не найдено</div>`;
+}
+
+function attachWorkoutsEvents() {
+    const searchInput = document.getElementById("librarySearch");
+    if (searchInput) {
+        searchInput.addEventListener("input", () => {
+            workoutSearch = searchInput.value;
+            document.getElementById("libraryResults").innerHTML = renderLibraryList();
+        });
+    }
+}
+
+function addExerciseToProgram(exerciseId) {
+    const program = findProgram(activeProgramId);
+    if (!program) return;
+    if (program.exercises.some(e => e.exerciseId === exerciseId)) return;
+    program.exercises.push({ exerciseId, sets: [{ kg: 0, reps: 0, done: false }] });
+    saveJSON("kbju_programs", state.programs);
+    workoutsView = "detail";
+    renderApp();
+}
+
 
 // ========================================
 // ВКЛАДКА PREMIUM
