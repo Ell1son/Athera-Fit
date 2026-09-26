@@ -57,6 +57,35 @@ const GROUP_ICON = {
     shoulders: "🤸", arms: "💪", core: "🔥", cardio: "🏃"
 };
 
+// более мелкая разбивка по мышцам для карточки "Нагрузка по мышцам" в профиле
+const MUSCLE_LOAD_LABELS = ["Грудь", "Спина", "Плечи", "Бицепс", "Трицепс", "Ноги", "Ягодицы", "Пресс", "Икры"];
+const TRICEP_IDS = new Set(["skull_crusher", "cable_pushdown", "close_grip_bench", "db_overhead_extension"]);
+const GLUTE_IDS = new Set(["romanian_deadlift", "bulgarian_split_squat"]);
+const CALF_IDS = new Set(["calf_raise_standing", "calf_raise_seated"]);
+
+function getMuscleLoadLabel(exerciseId, group) {
+    if (group === "chest") return "Грудь";
+    if (group === "back") return "Спина";
+    if (group === "shoulders") return "Плечи";
+    if (group === "core") return "Пресс";
+    if (group === "arms") return TRICEP_IDS.has(exerciseId) ? "Трицепс" : "Бицепс";
+    if (group === "legs") {
+        if (CALF_IDS.has(exerciseId)) return "Икры";
+        if (GLUTE_IDS.has(exerciseId)) return "Ягодицы";
+        return "Ноги";
+    }
+    return null; // кардио не входит в разбивку по силовым группам мышц
+}
+
+// готовые программы для раздела "Классика"
+const PRESET_PROGRAMS = [
+    { key: "full_body", name: "Full Body", desc: "Всё тело за одну тренировку", exercises: ["barbell_squat", "bench_press", "barbell_row", "ohp", "leg_curl", "plank"] },
+    { key: "push", name: "Push", desc: "Грудь, плечи, трицепс", exercises: ["bench_press", "incline_db_press", "ohp", "lateral_raise", "cable_pushdown", "dips"] },
+    { key: "pull", name: "Pull", desc: "Спина и бицепс", exercises: ["deadlift", "lat_pulldown", "barbell_row", "barbell_curl", "hammer_curl", "hyperextension"] },
+    { key: "leg_day", name: "Leg Day", desc: "Ноги и ягодицы", exercises: ["barbell_squat", "romanian_deadlift", "leg_press", "leg_curl", "calf_raise_standing", "bulgarian_split_squat"] },
+    { key: "upper", name: "Upper", desc: "Верх тела", exercises: ["bench_press", "barbell_row", "ohp", "barbell_curl", "cable_pushdown", "lat_pulldown"] }
+];
+
 const EXERCISES = [
     ["bench_press","Жим штанги лёжа","chest"],["db_bench_press","Жим гантелей лёжа","chest"],
     ["incline_bench","Жим штанги на наклонной скамье","chest"],["incline_db_press","Жим гантелей на наклонной скамье","chest"],
@@ -144,7 +173,8 @@ let state = {
     entries: JSON.parse(localStorage.getItem("kbju_entries") || "null") || [],
     programs: readJSON("kbju_programs", []),
     exerciseHistory: readJSON("kbju_exercise_history", {}),
-    exerciseIcons: readJSON("kbju_exercise_icons", {})
+    exerciseIcons: readJSON("kbju_exercise_icons", {}),
+    sessions: readJSON("kbju_sessions", [])
 };
 if (localStorage.getItem("kbju_day") !== todayKey) {
     state.entries = [];
@@ -247,6 +277,7 @@ function renderApp() {
 
     app.innerHTML = `
         <div class="app-shell">
+            ${getHeaderHtml()}
             <div class="screen-inner page-enter">${content}</div>
         </div>
         ${getBottomNavHtml()}
@@ -259,6 +290,15 @@ function renderApp() {
     attachModalEvents();
     attachWorkoutsEvents();
     if (scannerOpen) startScanner();
+}
+
+function getHeaderHtml() {
+    return `
+        <header class="app-header">
+            <div class="app-header-inner">
+                <div class="app-logo">HC <span class="app-logo-accent">GYM</span></div>
+            </div>
+        </header>`;
 }
 
 function getBottomNavHtml() {
@@ -815,32 +855,61 @@ function getWorkoutsHtml() {
 }
 
 function getProgramListHtml() {
-    if (state.programs.length === 0) {
-        return `
-            <h2>Твои <span class="accent">программы</span></h2>
-            <p class="subtitle">Собери тренировки под свои дни — например «Ноги», «Спина + бицепс»</p>
-            <div class="log-empty" style="padding:34px 20px">Пока нет ни одной программы</div>
-            <button class="btn btn-add" style="width:100%;margin-top:16px" onclick="createProgram()">+ Новая программа</button>
-        `;
-    }
-
     return `
-        <h2>Твои <span class="accent">программы</span></h2>
-        <p class="subtitle">${state.programs.length} программ${state.programs.length === 1 ? "а" : ""}</p>
+        <h2>Программы</h2>
+        <button class="btn btn-add prog-create-btn" onclick="createProgram()">+ Создать программу</button>
+
+        <div class="prog-section-label">Мои программы</div>
+        ${state.programs.length === 0
+            ? `<div class="log-empty">Пока нет ни одной программы</div>`
+            : `<div class="prog-list">${state.programs.map(p => getProgCardHtml(
+                p.name,
+                p.exercises.length === 0 ? "Пока нет упражнений" : p.exercises.map(e => getExerciseById(e.exerciseId)?.name || "?").join(", "),
+                `openProgram('${p.id}')`,
+                p.id
+            )).join("")}</div>`}
+
+        <div class="prog-section-label">Классика</div>
         <div class="prog-list">
-            ${state.programs.map(p => `
-                <div class="prog-card" onclick="openProgram('${p.id}')">
-                    <div class="prog-card-name">${p.name}</div>
-                    <div class="prog-card-exercises">${
-                        p.exercises.length === 0
-                            ? "Пока нет упражнений"
-                            : p.exercises.map(e => getExerciseById(e.exerciseId)?.name || "?").join(", ")
-                    }</div>
-                    <div class="prog-card-meta">${p.exercises.length} упражнени${p.exercises.length === 1 ? "е" : p.exercises.length < 5 ? "я" : "й"}</div>
-                </div>`).join("")}
+            ${PRESET_PROGRAMS.map(pr => getProgCardHtml(pr.name, pr.desc, `startPreset('${pr.key}')`, null)).join("")}
         </div>
-        <button class="btn btn-add" style="width:100%;margin-top:16px" onclick="createProgram()">+ Новая программа</button>
     `;
+}
+
+function getProgCardHtml(name, subtitle, action, deleteId) {
+    return `
+        <div class="prog-card" onclick="${action}">
+            ${deleteId ? `<button class="prog-card-del" onclick="event.stopPropagation(); deleteProgramFromList('${deleteId}')" aria-label="Удалить">✕</button>` : ""}
+            <div class="prog-card-name">${name}</div>
+            <div class="prog-card-exercises">${subtitle}</div>
+            <div class="prog-card-start">Начать →</div>
+        </div>`;
+}
+
+function deleteProgramFromList(id) {
+    if (!confirm("Удалить эту программу? Действие необратимо.")) return;
+    state.programs = state.programs.filter(p => p.id !== id);
+    saveJSON("kbju_programs", state.programs);
+    renderApp();
+}
+
+function startPreset(key) {
+    const preset = PRESET_PROGRAMS.find(p => p.key === key);
+    if (!preset) return;
+    let program = state.programs.find(p => p.fromPreset === key);
+    if (!program) {
+        program = {
+            id: "p" + Date.now(),
+            name: preset.name,
+            fromPreset: key,
+            exercises: preset.exercises.map(exId => ({ exerciseId: exId, sets: [{ kg: 0, reps: 0, done: false }] }))
+        };
+        state.programs.push(program);
+        saveJSON("kbju_programs", state.programs);
+    }
+    activeProgramId = program.id;
+    workoutsView = "detail";
+    renderApp();
 }
 
 function createProgram() {
@@ -1008,7 +1077,9 @@ function saveWorkoutSession() {
     const program = findProgram(activeProgramId);
     if (!program || program.exercises.length === 0) return;
 
+    let setsCount = 0;
     program.exercises.forEach(ex => {
+        setsCount += ex.sets.filter(s => s.kg > 0).length;
         const best = bestSet(ex.sets);
         if (!best || best.kg <= 0) return;
         if (!state.exerciseHistory[ex.exerciseId]) state.exerciseHistory[ex.exerciseId] = [];
@@ -1016,6 +1087,9 @@ function saveWorkoutSession() {
         // после сохранения тренировки сбрасываем отметки "выполнено" для следующего раза
         ex.sets.forEach(s => { s.done = false; });
     });
+
+    state.sessions.push({ date: new Date().toISOString(), setsCount });
+    saveJSON("kbju_sessions", state.sessions);
     saveJSON("kbju_exercise_history", state.exerciseHistory);
     saveJSON("kbju_programs", state.programs);
     renderApp();
@@ -1166,10 +1240,63 @@ function attachModalEvents() {
 
 const ACTIVITY_LABEL = { sedentary: "Сидячая", light: "Лёгкая", moderate: "Средняя", active: "Высокая" };
 
+function getSessionStats() {
+    const since = Date.now() - 7 * 24 * 3600 * 1000;
+    const total = state.sessions.length;
+    const week = state.sessions.filter(s => new Date(s.date).getTime() >= since).length;
+    const sets = state.sessions.reduce((sum, s) => sum + (s.setsCount || 0), 0);
+    return { total, week, sets };
+}
+
+function getMuscleLoad7d() {
+    const since = Date.now() - 7 * 24 * 3600 * 1000;
+    const loads = {};
+    MUSCLE_LOAD_LABELS.forEach(l => { loads[l] = 0; });
+
+    Object.keys(state.exerciseHistory).forEach(exId => {
+        const info = getExerciseById(exId);
+        if (!info) return;
+        const label = getMuscleLoadLabel(exId, info.group);
+        if (!label) return;
+        state.exerciseHistory[exId].forEach(h => {
+            if (new Date(h.date).getTime() < since) return;
+            const vol = (h.sets || []).reduce((s, set) => s + (set.kg || 0) * (set.reps || 0), 0);
+            loads[label] += vol;
+        });
+    });
+    return loads;
+}
+
 function getProfileHtml() {
+    const stats = getSessionStats();
+    const loads = getMuscleLoad7d();
+    const maxLoad = Math.max(1, ...Object.values(loads));
+
     return `
-        <h2>Твой <span class="accent">профиль</span></h2>
+        <div class="profile-head">
+            <div class="profile-avatar">А</div>
+            <div>
+                <div class="profile-name">Атлет</div>
+                <div class="profile-meta">${state.height || "—"} см · ${state.weight || "—"} кг</div>
+            </div>
+        </div>
         <p class="subtitle">${GOAL_PRESETS[state.goalType].label} · ${state.goal} ккал/день</p>
+
+        <div class="profile-stat-row">
+            <div class="profile-stat"><div class="profile-stat-num">${stats.total}</div><div class="profile-stat-label">Тренировок</div></div>
+            <div class="profile-stat"><div class="profile-stat-num">${stats.week}</div><div class="profile-stat-label">За неделю</div></div>
+            <div class="profile-stat"><div class="profile-stat-num">${stats.sets}</div><div class="profile-stat-label">Подходов</div></div>
+        </div>
+
+        <div class="section-title">Нагрузка по мышцам (7 дней)</div>
+        <div class="muscle-load-card">
+            ${MUSCLE_LOAD_LABELS.map(label => `
+                <div class="muscle-row">
+                    <span class="muscle-name">${label}</span>
+                    <div class="muscle-bar-track"><div class="muscle-bar-fill" style="width:${Math.min(100, loads[label] / maxLoad * 100)}%"></div></div>
+                    <span class="muscle-val">${loads[label] % 1 === 0 ? loads[label] : loads[label].toFixed(1)}</span>
+                </div>`).join("")}
+        </div>
 
         <div class="stat-grid">
             <div class="stat-box"><div class="stat-label">Вес</div><div class="stat-value">${state.weight || "—"} кг</div></div>
